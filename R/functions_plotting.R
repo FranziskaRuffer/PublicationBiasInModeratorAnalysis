@@ -30,3 +30,31 @@ p_bias_exp_val <- function(data, title, size_text = 8, axis_text = 23){
     scale_y_continuous(
       limits = c(-0.01, 1), breaks = seq(0, 1, by = 0.1), expand=c(0,0)) 
 }
+
+plot_grid_1legend <- function(p1, p2, p3, p4, legend){
+  g <- ggplotGrob(p1)
+  legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
+  p <- plot_grid(
+    plot_grid(p1 + theme(legend.position = "none"),
+              p2 + theme(legend.position = "none"),
+              p3 + theme(legend.position = "none"),
+              p4 + theme(legend.position = "none"), ncol = 2),  # 2x2 grid of plots
+    legend,  # Add extracted legend below
+    ncol = 1,  # Arrange in one column (plots on top, legend below)
+    rel_heights = c(3, 0.4)  # Adjust relative height of grid vs legend
+  )
+  return(p)
+}
+
+plot_grid_1legend_2p <- function(p1, p2, legend){
+  g <- ggplotGrob(p1)
+  legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
+  p <- plot_grid(
+    plot_grid(p1 + theme(legend.position = "none"),
+              p2 + theme(legend.position = "none"), ncol = 2),  # 
+    legend,  # Add extracted legend below
+    ncol = 1,  # Arrange in one column (plots on top, legend below)
+    rel_heights = c(3, 0.4)  # Adjust relative height of grid vs legend
+  )
+  return(p)
+}
