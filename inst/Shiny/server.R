@@ -1,46 +1,46 @@
 server <- function(input, output, session){
-  data <- reactive({
-    req(input$upload)
+  data <- shiny::reactive({
+    shiny::req(input$upload)
     
     ext <- tools::file_ext(input$upload$name)
     switch(ext,
            csv = readr::read_csv(input$upload$datapath),
            tsv = readr::read_tsv(input$upload$datapath),
-           validate("Invalid file; Please upload a .csv or .tsv file")
+           shiny::validate("Invalid file; Please upload a .csv or .tsv file")
     )
   })
   
   observeEvent(data(), {
     df_cols <- names(data())
     
-    updateSelectInput(session, "yi", choices = c("", df_cols))
-    updateSelectInput(session, "vi", choices = c("", df_cols))
-    updateSelectInput(session, "sei", choices = c("", df_cols))
-    updateSelectInput(session, "x1", choices = c("", df_cols))
-    updateSelectInput(session, "NoPB", choices = c("", df_cols))  # Allow blank option
+    shiny::updateSelectInput(session, "yi", choices = c("", df_cols))
+    shiny::updateSelectInput(session, "vi", choices = c("", df_cols))
+    shiny::updateSelectInput(session, "sei", choices = c("", df_cols))
+    shiny::updateSelectInput(session, "x1", choices = c("", df_cols))
+    shiny::updateSelectInput(session, "NoPB", choices = c("", df_cols))  # Allow blank option
   })
   
-  PBinfo <- reactive({
+  PBinfo <- shiny::reactive({
     cat("PBinfo triggered\n")
-    req(data())
+    shiny::req(data())
     cat("Data loaded\n")
     df <- data()
     
-    req(input$yi, input$x1)
+    shiny::req(input$yi, input$x1)
     cat("yi:", input$yi, " | x1:", input$x1, "\n")
     
     df$yi <- as.numeric(df[[input$yi]])
     df$x1 <- as.numeric(df[[input$x1]]) 
     
     if (input$vtype == "vi"){
-      req(input$vi)
-      validate(
+      shiny::req(input$vi)
+      shiny::validate(
         need(is.numeric(df[[input$vi]]), "Please select a column with numeric values for the sampling variance.")
       )
       df$vi <- as.numeric(df[[input$vi]])
     } else if (input$vtype == "sei"){
-      req(input$sei)
-      validate(
+      shiny::req(input$sei)
+      shiny::validate(
         need(is.numeric(df[[input$sei]]), "Please select a column with numeric values for the standard error.")
       )
       df$vi <- as.numeric(df[[input$sei]])^2
@@ -51,7 +51,7 @@ server <- function(input, output, session){
     if(is.null(input$NoPB) || input$NoPB == ""){
       df$NoPB = rep(FALSE, nrow(df))
     }else{
-      validate(
+      shiny::validate(
         #need(input$NoPB %in% names(df), "You inputted a label for column to indicate 
         #   which studies are affected by publication bias. This columns does not exist in your data."),
         need(is.logical(df[[input$NoPB]]) == FALSE, "The column to indicate which studies are affected 
@@ -62,34 +62,34 @@ server <- function(input, output, session){
     
     check_cols <- c("yi", "x1", "vi", "NoPB")
     # Validate that df$vi is numeric and not null
-    validate(
+    shiny::validate(
       need(!is.null(df$vi), "Computed sampling variance (vi) is NULL."),
       need(is.numeric(df$vi), "Computed sampling variance (vi) is not numeric.")
     )
     
     # Track how many rows before and after exclusion (cases with NA)
     n_before <- nrow(df)
-    df <- df[complete.cases(df[, check_cols]), ]
+    df <- df[stats::complete.cases(df[, check_cols]), ]
     n_after <- nrow(df)
     n_removed <- n_before - n_after
     
     # Notify user if rows were removed
     if (n_removed > 0) {
-      showNotification(
+      shiny::showNotification(
         paste(n_removed, "case(s) with missing values in", paste(check_cols, collapse = ", "), "were excluded."),
         type = "warning"
       )
     }
     
     # Final check
-    validate(
+    shiny::validate(
       need(nrow(df) > 1, "Not enough complete cases to proceed with analysis.")
     )
     
     #random and mixed-effects model
-    rem <- rma(yi=yi, vi = vi, data = df)
+    rem <- metafor::rma(yi=yi, vi = vi, data = df)
     x1 <- as.formula(paste0("~", as.character(input$x1)))
-    mem <- rma(yi=yi, vi = vi, data = df, mods= x1)
+    mem <- metafor::rma(yi=yi, vi = vi, data = df, mods= x1)
     
     #default values
     beta1 = 0
@@ -100,7 +100,7 @@ server <- function(input, output, session){
     
     
     if (input$default == "yes"){
-      validate(
+      shiny::validate(
         need(!is.null(input$beta0.spec), "Please specify a numerical value for beta0."),
         need(is.numeric(input$beta0.spec), "The specified value for beta0 is not numeric."),
         need(!is.null(input$beta1.spec), "Please specify a numerical value for beta1."),
@@ -136,12 +136,12 @@ server <- function(input, output, session){
     ))
   })
   
-  output$BiasPlot1 <- renderPlot(    
+  output$BiasPlot1 <- shiny::renderPlot(    
     width =  function() input$width,
     height = function() input$height,
     res = 96,
     {
-      req(PBinfo())
+      shiny::req(PBinfo())
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0, 
                             mod.title = paste0("Moderator: ", input$x1) ,
@@ -150,13 +150,13 @@ server <- function(input, output, session){
     }
   )
   
-  output$download_Fig1 <- downloadHandler(
+  output$download_Fig1 <- shiny::downloadHandler(
     filename = "Bias_Plot1.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggsave("Bias_Plot1.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
+      ggplot2::ggsave("Bias_Plot1.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0, 
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
@@ -165,7 +165,7 @@ server <- function(input, output, session){
   )
   
   
-  output$BiasPlot2 <- renderPlot(    
+  output$BiasPlot2 <- shiny::renderPlot(    
     width =  function() input$width,
     height = function() input$height,
     res = 96,
@@ -179,13 +179,13 @@ server <- function(input, output, session){
     }
   )
   
-  output$download_Fig2<- downloadHandler(
+  output$download_Fig2<- shiny::downloadHandler(
     filename = "Bias_Plot2.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggsave("Bias_Plot2.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
+      ggplot2::ggsave("Bias_Plot2.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2, 
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB), 
@@ -194,12 +194,12 @@ server <- function(input, output, session){
   )
   
   
-  output$BiasPlot3 <- renderPlot(    
+  output$BiasPlot3 <- shiny::renderPlot(    
     width =  function() input$width,
     height = function() input$height,
     res = 96,
     {
-      req(PBinfo())
+      shiny::req(PBinfo())
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta), 
                             mod.title = paste0("Moderator: ", input$x1) ,
@@ -208,13 +208,13 @@ server <- function(input, output, session){
     }
   )
   
-  output$download_Fig3 <- downloadHandler(
+  output$download_Fig3 <- shiny::downloadHandler(
     filename = "Bias_Plot3.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggsave("Bias_Plot3.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
+      ggplot2::ggsave("Bias_Plot3.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1, 
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta), 
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
@@ -223,13 +223,13 @@ server <- function(input, output, session){
   )
   
   
-  output$AddBiasPlot <- renderPlot(    
+  output$AddBiasPlot <- shiny::renderPlot(    
     width =  function() input$width,
     height = function() input$height,
     res = 96,
     {
-      req(input$default == "yes")
-      req(PBinfo())
+      shiny::req(input$default == "yes")
+      shiny::req(PBinfo())
       p <- Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec, 
                                     beta1=PBinfo()$beta1.spec, I2 = PBinfo()$I2res.spec, 
                                     PB = PBinfo()$PB.spec, mem = PBinfo()$mem,
@@ -239,13 +239,13 @@ server <- function(input, output, session){
     }
   )
   
-  output$download_AddBiasPlot <- downloadHandler(
+  output$download_AddBiasPlot <- shiny::downloadHandler(
     filename = "AddBiasPlot.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggsave("AddBiasPlot.png", plot = Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec, 
+      ggplot2::ggsave("AddBiasPlot.png", plot = Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec, 
                                                                 beta1=PBinfo()$beta1.spec, I2 = PBinfo()$I2res.spec, 
                                                                 PB = PBinfo()$PB.spec, mem = PBinfo()$mem,
                                                                 betasPB = PBinfo()$PBbetas),
@@ -253,18 +253,18 @@ server <- function(input, output, session){
     }
   )
   
-  output$BiasText <- renderPrint({
-    req(input$default == "yes")
-    validate(need(is.matrix(PBinfo()$PBbetas), "PBbetas is not a matrix"))
+  output$BiasText <- shiny::renderPrint({
+    shiny::req(input$default == "yes")
+    shiny::validate(need(is.matrix(PBinfo()$PBbetas), "PBbetas is not a matrix"))
     print(paste0("The biased intercept is ", round(PBinfo()$PBbetas[1,1], 4), 
                  " and the biased moderator effect is ",round(PBinfo()$PBbetas[2,1],4), "."))
   })
   
-  output$table <- renderTable(PBinfo()$tab_betas , striped = TRUE,rownames = TRUE, colnames = TRUE,) 
+  output$table <- shiny::renderTable(PBinfo()$tab_betas , striped = TRUE,rownames = TRUE, colnames = TRUE,) 
   
-  output$rem <- renderPrint({
+  output$rem <- shiny::renderPrint({
     
-    req(PBinfo()$rem)
+    shiny::req(PBinfo()$rem)
     tryCatch({
       print(PBinfo()$rem)
     }, error = function(e) {
@@ -272,9 +272,9 @@ server <- function(input, output, session){
     })
   })
   
-  output$mem <- renderPrint({
+  output$mem <- shiny::renderPrint({
     
-    req(PBinfo()$mem)
+    shiny::req(PBinfo()$mem)
     tryCatch({
       print(PBinfo()$mem)
     }, error = function(e) {
@@ -282,20 +282,19 @@ server <- function(input, output, session){
     })
   })
   
-  output$RegPlot<- renderPlot(    
+  output$RegPlot<- shiny::renderPlot(    
     width =  function() input$width,
     height = function() input$height,
     res = 96,
     {
-      p4 <- regplot(PBinfo()$mem)
+      p4 <- metafor::regplot(PBinfo()$mem)
       return(p4)
     }
   )
   
   
-  
-  output$head <- renderTable({
-    req(data())
+  output$head <- shiny::renderTable({
+    shiny::req(data())
     head(data(), input$n)
   })
 }

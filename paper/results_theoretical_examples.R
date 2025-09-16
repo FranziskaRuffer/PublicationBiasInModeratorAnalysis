@@ -1,5 +1,8 @@
 # R code to reproduce the Figures and Calculations of all theoretical examples in the paper. 
 
+#load packages
+library(ggplot2)
+
 ################################################################################
 ##############-------------- Modelling choices ---------------##################
 ################################################################################
@@ -90,5 +93,5 @@ dat_1c <- do.call(rbind,flattenlist(
       exp_val(PB=PB, Zcv=Zcv, g=g, N=N_small, I2 = 0.75) ) ) ) ) 
 
 # obtain the mean tau2 from this set
-meantau2 <- mean(PB20dat1bN40_I2_75$tau2)
+meantau2 <- mean(dat_1c$tau2)
 

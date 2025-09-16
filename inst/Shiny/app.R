@@ -8,5 +8,5 @@
 #' ### Load the package and run the app
 #' library(PublicationBiasInModeratorAnalysis)
 #' shiny::runApp(system.file("shiny", package = "PublicationBiasInModeratorAnalysis"))
-
-shinyApp(ui, server)
+#' 
+shiny::shinyApp(ui, server)
