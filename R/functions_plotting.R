@@ -1,8 +1,53 @@
-#' Plotting Functions
+#' Plotting Function Figure 1
 #'
 #' @export
-p_bias_exp_val <- function(data, title, size_text = 8, axis_text = 23){
-  ggplot2::ggplot(data=data,aes(x=g, y=bias, linetype=PB)) +
+p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
+  ggplot(data=data,aes(x=g, y=E, linetype=PB)) +
+  geom_abline(intercept = 0, slope = 1, color="#9E9E9E", linewidth=0.9)+
+  geom_line(linewidth=1.2) +
+  geom_line(aes(y = bias, color="Bias"), linewidth=1.2) +
+  labs( x = expression(theta[i]),
+        y=expression(theta[i]^PB),
+         color="",
+        title = title) +
+  scale_linetype_manual(values = c(1, 2),
+                        labels = c(expression("A:"~PB[a]==0),
+                                   expression("B:"~PB[b]==0.2)),
+                        name = "Moderator Group") +
+  theme(legend.text = element_text(size = axis_text-4),
+        legend.key.size = unit(3,"line"),
+        legend.title = element_text(size = axis_text-4),  # Adjust vertical position of legend title
+        legend.position = "bottom",           # Position legend at the bottom
+        title = element_text(size = axis_text-4),
+        panel.grid.major = element_blank(),  # Remove major grid lines
+        panel.grid.minor = element_blank(),  # Remove minor grid lines
+        plot.background = element_rect(fill = "white"),  # Set plot background color to white
+        panel.background = element_rect(fill = "white"),  # Set panel background color to white
+        panel.border = element_rect(color = "#000000", fill = NA),  # Set panel border color to black
+        plot.margin = margin(10, 10, 10, 10, "pt"),
+        axis.title.x = element_text(color = "#000000", size=axis_text-2),
+        axis.title.y = element_text(color = "#000000", size=axis_text-2),
+        axis.text.y = element_text(size=axis_text-2),
+        axis.text.x = element_text(size=axis_text-2),
+        axis.line.y.right = element_line(color = "#DF536B"),
+        axis.ticks.y.right = element_line(color = "#DF536B"),
+        axis.text.y.right = element_text(color = "#DF536B", size=axis_text-2),
+        axis.title.y.right = element_text(color = "#DF536B", size=axis_text-2) )  + # Add margin around the plot
+  guides(linetype = guide_legend(title.position = "top"),
+         colour = guide_legend(title.position = "top"))  +# Place legend title on top
+  scale_x_continuous(limits = c(0, 0.8), breaks = seq(0, 0.8, by = 0.1), expand=c(0,0)) +  # Customize x-axis ticks
+  scale_color_manual(values = c("#DF536B", "#000000"))+
+  scale_y_continuous(sec.axis = sec_axis(~.*1, name="Bias",breaks = seq(0,1, by = 0.1)),
+                     limits = c(-0.01, 1), breaks = seq(0, 1, by = 0.1), expand=c(0,0))
+
+}
+
+
+#' Plotting Function Figure 2
+#'
+#' @export
+p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
+  ggplot2::ggplot(data=data,aes(x=get(x, data), y=get(y, data), linetype=PB)) +
     geom_line(linewidth=1.2) +
     labs( x = expression(theta[i]) ,
           y= "Bias",
@@ -204,7 +249,8 @@ plot_grid_1legend <- function(p1, p2, p3, p4, legend){
   return(p)
 }
 
-#' @noRd
+#' Generates Figure with 2 sub Figures in a row and one legend
+#' @export
 plot_grid_1legend_2p <- function(p1, p2, legend){
   g <- ggplot2::ggplotGrob(p1)
   legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
