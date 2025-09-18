@@ -184,8 +184,25 @@ dat2a_wide <- do.call(rbind, flattenlist(
                N=c(N_medium, N_medium), I2 = 0))
 ))
 
-#bias in the moderator effect
+#bias in the moderator effect when the moderator effect beta0=0, since gA = gB
 dat2a$bias <- rep(subset(dat2a, PB == PB_extreme)$E - subset(dat2a, PB == PB_medium)$E,2)
+groupB <- subset(dat2a, dat2a$PB == 0.2)
+maxBiasB <- max(groupB$E - groupB$g )
+groupB[which(groupB$E - groupB$g == maxBiasB),]
+dat2a$PB <-factor(dat2a$PB)
 
-biases <- c(dat2a_wide$diffE, dat2a_wide$diffE)
+#if theta = 0, then the expected moderator effect is
+# group A
+subset(dat2a, PB ==0 & g ==0) #PB = 0, then E = 0.524
+round(subset(dat2a, PB ==0 & g ==0)$E, 3) #  E = 0.524
+#group B
+subset(dat2a, PB ==0.2 & g ==0) #PB = 0.2, then E = 0.048
+round(subset(dat2a, PB ==0.2 & g ==0)$E, 3) # E = 0.048
+#moderator effect
+round(subset(dat2a, PB ==0 & g ==0)$E, 4) - round(subset(dat2a, PB ==0.2 & g ==0)$E, 4)
+
+#zero moderator effect when thetaA=0, N=80, PB_A=0 and PB_B=0.2
+round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PB1=0, PB2=0.2, I2=0),3) #when thetaB=.3906
+round(exp_val(PB=0.2, Zcv=Zcv, g=.3906, N=N_medium, I2 = 0)$E,3) #E_B = 0.5245
+
 
