@@ -139,7 +139,10 @@ p1d <- p_bias_exp_val(data=dat_1d, x="g", y="E",
 
 # plot and save Figure 2 as svg
 Fig1 <- plot_grid_1legend(p1a ,p1c ,p1b ,p1d)
-ggplot2::ggsave(plot = Fig1, filename = "Figure1.svg",  width = 1500*0.3, height = 1400*0.3, units = "mm",limitsize = FALSE)
+Fig1
+ggplot2::ggsave(plot = Fig1,
+                filename = "Figure1.svg",
+                width = 1500*0.3, height = 1400*0.3, units = "mm",limitsize = FALSE)
 
 
 # maximum bias when PB =0.05, N = 200,  I2 = 0.94 at a true effect size of
@@ -239,7 +242,7 @@ p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(a)*":"~N=
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)
 Fig2
-ggsave(plot = Fig2, filename = "Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
+ggsave(plot = Fig2, filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
 
 
 ##################### ----------  FIGURE 3  ---------------- ###################
@@ -265,7 +268,7 @@ p3b <- p_bias_exp_val(dat_1c, x = "g", y="bias_b1",
 
 #Create Figure 3 and save as svg
 Fig3 <- plot_grid_1legend_2p(p3a, p3b)
-ggsave(plot = Fig3, filename = "Figure3.svg",  width = 2000*0.3, height = 923*0.3, units = "mm",limitsize = FALSE)
+ggsave(plot = Fig3, filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure3.svg",  width = 2000*0.3, height = 923*0.3, units = "mm",limitsize = FALSE)
 
 
 ##################### ----------  FIGURE 4  ---------------- ###################
@@ -435,5 +438,5 @@ Fig4 <- p4d +
             label= "~theta[a] - theta[b] ==-0.061")
 Fig4
 
-ggsave(plot = Fig4, filename = "Figure4.svg",  width = 1250*0.3, height = 1300*0.3, units = "mm",limitsize = FALSE)
+ggsave(plot = Fig4, filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure4.svg",  width = 1250*0.3, height = 1300*0.3, units = "mm",limitsize = FALSE)
 
