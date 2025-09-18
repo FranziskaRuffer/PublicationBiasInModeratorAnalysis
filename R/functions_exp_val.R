@@ -1,5 +1,3 @@
-#' @importFrom stats pnorm dnorm uniroot
-
 #' Functions to obtain the expected effect sizes given publication bias
 #' Parameter:
 #' * PB = Publication Bias... proportion of non-significant effect sizes published
