@@ -242,7 +242,7 @@ p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(a)*":"~N=
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)
 Fig2
-ggsave(plot = Fig2, filename = "Figures/Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
+ggsave(plot = Fig2, filename = "Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
 
 
 ##################### ----------  FIGURE 3  ---------------- ###################
