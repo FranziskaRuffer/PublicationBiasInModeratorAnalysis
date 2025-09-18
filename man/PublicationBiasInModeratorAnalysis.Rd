@@ -6,7 +6,7 @@
 \alias{PublicationBiasInModeratorAnalysis}
 \title{Package-level imports}
 \description{
-Publication bias sensitvity analyses for moderator effects in meta-analyses
+Provides functions and a Shiny app for analyzing publication bias in moderator analyses. Includes methods for expected value calculations, plotting, and simulation.
 }
 \author{
 \strong{Maintainer}: Franziska Rüffer \email{f.f.ruffer@gmail.com}

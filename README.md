@@ -47,4 +47,6 @@ Both scripts load all the necessary functions from this R package (see R folder)
 as well as all the necessary additional R packages in the versions used for the 
 original analysis. 
 
+### License
+Figures and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
 

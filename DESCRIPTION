@@ -3,8 +3,8 @@ Title: Shiny app for publication bias sensitivity analyses as well as analysis c
 Version: 0.0.0.9000
 Authors@R: 
     person("Franziska", "Rüffer", , "f.f.ruffer@gmail.com", role = c("aut", "cre"))
-Description: Publication bias sensitvity analyses for moderator effects in meta-analyses
-License: MIT + file LICENSE
+Description: Provides functions and a Shiny app for analyzing publication bias in moderator analyses. Includes methods for expected value calculations, plotting, and simulation.
+License: MIT + file LICENSE | CC-BY-4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
