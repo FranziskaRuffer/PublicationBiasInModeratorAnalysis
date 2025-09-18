@@ -282,7 +282,7 @@ exp_val_continuous <- function(PB, Zcv, N, Nvec, I2, x1, x1vec, beta0, beta1){
 #' weighted-least squares estimate of betas using the expected effect sizes given
 #' publication bias instead of observed effect sizes
 #'
-#' @noRd
+#' @export
 betas_PB <- function(data){
   W <- diag(1/(data$vg+data$tau2))
   X <- matrix(c(rep(1,nrow(data)),data$x1), byrow = F, ncol =2)
