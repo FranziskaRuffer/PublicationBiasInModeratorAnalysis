@@ -2,3 +2,6 @@
 ^renv\.lock$
 ^PublicationBiasInModeratorAnalysis\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+^Figure1.svg$
+^paper$

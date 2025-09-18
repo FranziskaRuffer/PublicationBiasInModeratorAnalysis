@@ -1,6 +1,6 @@
 #' Package-level imports
 #'
-#' @docType _PACKAGE
+#' @docType package
 #' @name PublicationBiasInModeratorAnalysis
 #' @import shiny
 #' @import bslib
