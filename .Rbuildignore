@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^PublicationBiasInModeratorAnalysis\.Rproj$
 ^\.Rproj\.user$
