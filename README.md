@@ -8,7 +8,7 @@ paper on the "Effects of Publication Bias on Moderator Effects in Meta-Analysis"
 ### Option 1: Open the hosted app (no R required)
 
 The app is also deployed on [shinyapps.io](https://www.shinyapps.io/?utm_source=chatgpt.com).
-👉 Click [here]() to launch the app.
+👉 Click [here](https://franziskaruffer.shinyapps.io/shiny/) to launch the app.
 
 
 ### Option 2: Run directly from GitHub (requires R)
@@ -47,6 +47,6 @@ Both scripts load all the necessary functions from this R package (see R folder)
 as well as all the necessary additional R packages in the versions used for the 
 original analysis. 
 
-### License
-Figures and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
+### License Figures
+and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
 
