@@ -5,7 +5,7 @@
 \alias{PublicationBiasInModeratorAnalysis}
 \title{Package-level imports}
 \description{
-Publication bias sensitvity analyses for moderator effects in meta-analyses. R functions under MIT license; example figures and paper under CC-BY-4.0.
+Publication bias sensitvity analyses for moderator effects in meta-analyses. R functions under MIT license; example figures and paper under CC-BY-4.0
 }
 \author{
 \strong{Maintainer}: Franziska Rüffer \email{f.f.ruffer@gmail.com}
