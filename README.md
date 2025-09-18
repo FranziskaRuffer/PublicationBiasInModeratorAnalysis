@@ -1,7 +1,7 @@
 # PublicationBiasInModeratorAnalysis
 [!DOI]()
 
-This project contains the  R code, Figures, Shiny App and data described in the accompanying 
+This project contains the  R code, Figures, Shiny App and data analyses described in the accompanying 
 paper on the "Effects of Publication Bias on Moderator Effects in Meta-Analysis".
 
 ## 🚀 Run the Shiny App
@@ -12,18 +12,38 @@ The app is also deployed on [shinyapps.io](https://www.shinyapps.io/?utm_source=
 
 
 ### Option 2: Run directly from GitHub (requires R)
-Make sure you have R (≥ 4.0) and the `shiny` package installed:
+
+You can load the R package containing the Shiny App in R by running the code below:
 
 ```bash
-install.packages("shiny")
+remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 ```
-Then run the app directly from GitHub:
+
+Then run the app directly from your local environment by calling pb_mods_App()
 
 ```bash
-shiny::runGitHub("PublicationBiasInModeratorAnalysis/Shiny", "FranziskaRuffer")
+PublicationBiasInModeratorAnalysis::pb_mods_App()
 ```
+For an example of how to do this, you can have a look at the analysis of the 
+two applied examples. You can find those analyses in the results_applied_examples.R
+Code in the paper folder. 
+
+
 ## Reproduce the Analyses 
-The R code for all analyses presented in the paper can be found in the R folder. 
-* functions.R
-* analyses.R
+
+To reproduce the all analyses, you can download and rerun two R scripts saved
+in the paper folder: 
+* results_applied_examples.R
+* results_theoretical_examples.R
+
+The first script will reproduce sensitivity analyses and figures for the meta-analysis
+on the Red Romance Effect (Lehmann et al., 2017) and the meta-analysis on
+primary care effectiveness interventions (Baskerville et al., 2012).
+
+The second script reproduces all theoretical analyses and the first four figure
+in the paper. 
+
+Both scripts load all the necessary functions from this R package (see R folder), as well
+as all the necessary additional R packages in their correct version. 
+
 
