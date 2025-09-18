@@ -6,6 +6,26 @@
 \usage{
 sol.g2(N1, N2, g1, Zcv, PB1, PB2, I2 = 0)
 }
+\arguments{
+\item{N1}{primary study sample size in all studie of moderator group one (single value assuming sample sizes to be constant in the moderator group)}
+
+\item{N2}{primary study sample size in all studie of moderator group two (single value assuming sample sizes to be constant in the moderator group)}
+
+\item{g1}{true effect size in moderator group 1}
+
+\item{Zcv}{critical Z value for testing significance of effect sizes}
+
+\item{PB1}{amount of publication bias in moderator group 1 (can range form 0 to 1)}
+
+\item{PB2}{amount of publication bias in moderator group 2 (can range form 0 to 1)}
+
+\item{I2}{amount of heterogeneity in the meta-analysis expressed as I2}
+}
+\value{
+true effect size in second moderator group such that the moderator effect is completely hidden by publication bias.
+}
 \description{
-Solves for the true effect size g2 in group2, s.t. E1=E2 (hidden moderator effect)
+The function solves for the true effect size in moderator group two
+such that the moderator effect is completely hidden in a scenario with a certain
+amount of publication bias.
 }

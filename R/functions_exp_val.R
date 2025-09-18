@@ -242,7 +242,17 @@ diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2){
 
 
 #' Solves for the true effect size g2 in group2, s.t. E1=E2 (hidden moderator effect)
-#'
+#' @description The function solves for the true effect size in moderator group two
+#'  such that the moderator effect is completely hidden in a scenario with a certain
+#'   amount of publication bias.
+#' @param N1  primary study sample size in all studie of moderator group one (single value assuming sample sizes to be constant in the moderator group)
+#' @param N2  primary study sample size in all studie of moderator group two (single value assuming sample sizes to be constant in the moderator group)
+#' @param g1 true effect size in moderator group 1
+#' @param Zcv critical Z value for testing significance of effect sizes
+#' @param PB1 amount of publication bias in moderator group 1 (can range form 0 to 1)
+#' @param PB2 amount of publication bias in moderator group 2 (can range form 0 to 1)
+#' @param I2 amount of heterogeneity in the meta-analysis expressed as I2
+#' @returns true effect size in second moderator group such that the moderator effect is completely hidden by publication bias.
 #' @export
 sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0){
   f_sol <- uniroot(diffE , N1 = N1, N2 = N2, g1 = g1, Zcv = Zcv,
