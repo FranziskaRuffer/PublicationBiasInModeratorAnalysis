@@ -81,7 +81,9 @@ PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric
 PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 
 # Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv or .tsv file
-pb_mods_App()
+#' Note: Specify another directory, if you do not want ot save the data in your current directory!
+write.csv(dat, "dat.lehmann2018.csv")
+pb_mods_App()  # select the data file and variables in the app, check the manual tab for help
 
 
 #' #############################################################################
@@ -134,8 +136,9 @@ PBanalysis_plots(dat = dat, mods = dat$pperf, mem = mem,Zcv = Zcv, beta0 =as.num
 PBanalysis_plots(dat = dat, mods = dat$pperf, mem = mem,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Number of Practices per Facilitator")
 
 #' Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv or .tsv file
-#'
-pb_mods_App()
+#' Note: Specify another directory, if you do not want ot save the data in your current directory!
+write.csv(dat, "dat.baskerville2012.csv")
+pb_mods_App() # select the data file and variables in the app, check the manual tab for help
 
 
 

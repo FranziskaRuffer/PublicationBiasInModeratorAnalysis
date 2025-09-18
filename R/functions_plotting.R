@@ -9,7 +9,7 @@ p_bias_exp_val <- function(data, title, size_text = 8, axis_text = 23){
           title = title) +
     scale_linetype_manual(values = 1:5,
                           labels = c("0", "0.05", "0.2", "0.5", "1"),
-                          name = "Proportion of published non-signigicant studies [PB]") +
+                          name = "Proportion of published non-significant studies [PB]") +
     theme(legend.text = element_text(size = axis_text-4),
           legend.key.size = unit(3,"line"),
           legend.title = element_text(size = axis_text-4),  # Adjust vertical position of legend title
