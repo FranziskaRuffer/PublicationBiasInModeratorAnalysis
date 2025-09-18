@@ -90,7 +90,6 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
 #' @param vg Primary study sampling variance (not necessary when N and Nvec are specified)
 #' @param vgvec Vector of all primary study sampling variances in the meta-analysis (not necessary when N and Nvec are specified)
 #' @param I2 heterogeneity estimate in the meta-analysis
-#' @param g True effect size as standardized mean difference (we used Hedges' g)
 #' @param N Primary study total sample size
 #' @param I2 residual heterogeneity estimate in the meta-analysis
 #' @param x1 moderator value of the given study in the meta-analysis

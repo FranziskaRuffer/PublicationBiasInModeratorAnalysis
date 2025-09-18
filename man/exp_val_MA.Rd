@@ -48,8 +48,6 @@ exp_val_MA(
 
 \item{NoPB}{whether the given primary study is assumed to be affected by publication bias (FALSE = default) or
 whether the study is unaffected by publication bias (TRUE)}
-
-\item{g}{True effect size as standardized mean difference (we used Hedges' g)}
 }
 \value{
 This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.

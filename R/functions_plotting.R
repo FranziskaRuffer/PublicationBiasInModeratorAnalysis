@@ -294,7 +294,7 @@ plot_grid_1legend <- function(p1, p2, p3, p4){
 #' @param p2 second ggplot figure
 #' @returns a ggplot figure
 #' @export
-plot_grid_1legend_2p <- function(p1, p2, legend){
+plot_grid_1legend_2p <- function(p1, p2){
   g <- ggplot2::ggplotGrob(p1)
   legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
   p <- cowplot::plot_grid(

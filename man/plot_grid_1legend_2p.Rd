@@ -5,7 +5,7 @@
 \title{Generates a figure with two sub figures in a row and one legend
 #' @description Generates a figure with 2 sub figures and one legend}
 \usage{
-plot_grid_1legend_2p(p1, p2, legend)
+plot_grid_1legend_2p(p1, p2)
 }
 \arguments{
 \item{p1}{first ggplot figure}
