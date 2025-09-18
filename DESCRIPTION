@@ -9,3 +9,11 @@ License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends: R (>= 4.2)
+Imports:
+    shiny (>= 1.11.1),
+    bslib (>= 0.9.0),
+    ggplot2 (>= 3.5.2),
+    metafor (>= 4.8-0),
+    metadat (>= 1.4-0),
+    cowplot (>= 1.2.0)
