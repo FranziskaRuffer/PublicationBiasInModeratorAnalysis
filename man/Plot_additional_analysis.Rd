@@ -15,6 +15,26 @@ Plot_additional_analysis(
   mod.title = "Moderator value"
 )
 }
+\arguments{
+\item{data}{dataframe to be used for plotting}
+
+\item{beta0}{true intercept in the meta-analysis}
+
+\item{beta1}{true slope/moderator effect in the meta-analysis}
+
+\item{I2}{single value between 0 and 1 specifying the level of residual I2}
+
+\item{PB}{single value between 0 and 1 specifyin the publication bias}
+
+\item{mem}{metafor mixed-effects meta-analysis model}
+
+\item{betasPB}{vector with two values; the publication biased intercept and slope estimates from the meta-analysis}
+
+\item{mod.title}{character string with the x-axis label specifying the moderator (default = "Moderator value")}
+}
+\value{
+additional Shiny app plot
+}
 \description{
 Shiny app additional plot
 }

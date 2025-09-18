@@ -2,10 +2,20 @@
 % Please edit documentation in R/functions_plotting.R
 \name{plot_grid_1legend_2p}
 \alias{plot_grid_1legend_2p}
-\title{Generates Figure with 2 sub Figures in a row and one legend}
+\title{Generates a figure with two sub figures in a row and one legend
+#' @description Generates a figure with 2 sub figures and one legend}
 \usage{
 plot_grid_1legend_2p(p1, p2, legend)
 }
+\arguments{
+\item{p1}{first ggplot figure}
+
+\item{p2}{second ggplot figure}
+}
+\value{
+a ggplot figure
+}
 \description{
-Generates Figure with 2 sub Figures in a row and one legend
+Generates a figure with two sub figures in a row and one legend
+#' @description Generates a figure with 2 sub figures and one legend
 }

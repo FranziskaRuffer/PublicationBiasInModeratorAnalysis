@@ -6,6 +6,18 @@
 \usage{
 p_bias_diff_exp_val(data, title, size_text = 8, axis_text = 23)
 }
+\arguments{
+\item{data}{data to be used in the plot}
+
+\item{title}{character string with the plot title}
+
+\item{size_text}{text size in the plot (default = 8)}
+
+\item{axis_text}{axis text size in the plot (default = 23)}
+}
+\value{
+A figure with true effect sizes on the x-axis and publication biased effect sizes on the y-axis.
+}
 \description{
 Function to create the subplot of Figure 2
 }

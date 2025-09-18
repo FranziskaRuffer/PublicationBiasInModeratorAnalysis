@@ -6,6 +6,22 @@
 \usage{
 p_bias_exp_val(data, x, y, title, size_text = 8, axis_text = 23)
 }
+\arguments{
+\item{data}{data to be used in the plot}
+
+\item{x}{character string that specified a column in data to be used as true effect size (x-axis)}
+
+\item{y}{character string that specified a column in data to be used as bias (x-axis)}
+
+\item{title}{character string with the plot title}
+
+\item{size_text}{text size in the plot (default = 8)}
+
+\item{axis_text}{axis text size in the plot (default = 23)}
+}
+\value{
+Returns a plot with the true effect sizes on the x-axis and the amount of bias in the effect sizes due to publication bias on the y-axis.
+}
 \description{
 Function to create the subplots of Figure 1
 }

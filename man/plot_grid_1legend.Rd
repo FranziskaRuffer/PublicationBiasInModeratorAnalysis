@@ -2,10 +2,22 @@
 % Please edit documentation in R/functions_plotting.R
 \name{plot_grid_1legend}
 \alias{plot_grid_1legend}
-\title{Generates Figure with 4 sub Figures and one legend}
+\title{Generates a figure with 4 sub figures and one legend}
 \usage{
-plot_grid_1legend(p1, p2, p3, p4, legend)
+plot_grid_1legend(p1, p2, p3, p4)
+}
+\arguments{
+\item{p1}{first ggplot figure}
+
+\item{p2}{second ggplot figure}
+
+\item{p3}{third ggplot figure}
+
+\item{p4}{fourth ggplot figure}
+}
+\value{
+a ggplot figure
 }
 \description{
-Generates Figure with 4 sub Figures and one legend
+Generates a figure with 4 sub figures and one legend
 }

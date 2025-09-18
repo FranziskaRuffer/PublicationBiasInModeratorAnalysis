@@ -16,6 +16,28 @@ PBanalysis_plots(
   PB = c(0, 0.05, 0.2, 0.5, 1)
 )
 }
-\description{
+\arguments{
+\item{dat}{dataframe to be used for plotting}
+
+\item{mods}{moderator variable}
+
+\item{mem}{metafor mixed-effects meta-analysis model}
+
+\item{Zcv}{critical Z value for testing effect sizes}
+
+\item{beta0}{true intercept in the meta-analysis}
+
+\item{beta1}{true slope/moderator effect in the meta-analysis}
+
+\item{mod.title}{character string with the x-axis label specifying the moderator (default = "Moderator value")}
+
+\item{I2res}{vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))}
+
+\item{PB}{vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))}
+}
+\value{
 Shiny app final default plot
+}
+\description{
+Function to create the shiny app default plot used in sensitivity publication bias analyses for moderator effects in meta-analysis.
 }

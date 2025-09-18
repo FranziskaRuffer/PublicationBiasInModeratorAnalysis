@@ -1,9 +1,9 @@
 Package: PublicationBiasInModeratorAnalysis
-Title: Shiny app for publication bias sensitivity analyses as well as analysis code from the accompanying paper. 
+Title: Shiny app for publication bias sensitivity analyses as well as analysis code from the accompanying paper 
 Version: 0.0.0.9000
 Authors@R: 
     person("Franziska", "Rüffer", , "f.f.ruffer@gmail.com", role = c("aut", "cre"))
-Description: Publication bias sensitvity analyses for moderator effects in meta-analyses.  R functions under MIT license; example figures and paper under CC-BY-4.0.
+Description: Publication bias sensitvity analyses for moderator effects in meta-analyses. R functions under MIT license; example figures and paper under CC-BY-4.0
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
