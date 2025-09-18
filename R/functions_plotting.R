@@ -1,5 +1,6 @@
 
-#' Plotting Function Figure 1
+#' Plotting Function Figure 2
+#' @description Function to create the subplot of Figure 2
 #'
 #' @export
 p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
@@ -30,21 +31,23 @@ p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
         axis.title.y = element_text(color = "#000000", size=axis_text-2),
         axis.text.y = element_text(size=axis_text-2),
         axis.text.x = element_text(size=axis_text-2),
-        axis.line.y.right = element_line(color = "#DF536B"),
-        axis.ticks.y.right = element_line(color = "#DF536B"),
-        axis.text.y.right = element_text(color = "#DF536B", size=axis_text-2),
-        axis.title.y.right = element_text(color = "#DF536B", size=axis_text-2) )  + # Add margin around the plot
+        axis.line.y.right = element_line(color = "#EE6677"),
+        axis.ticks.y.right = element_line(color = "#EE6677"),
+        axis.text.y.right = element_text(color = "#EE6677", size=axis_text-2),
+        axis.title.y.right = element_text(color = "#EE6677", size=axis_text-2) )  + # Add margin around the plot
   guides(linetype = guide_legend(title.position = "top"),
          colour = guide_legend(title.position = "top"))  +# Place legend title on top
   scale_x_continuous(limits = c(0, 0.8), breaks = seq(0, 0.8, by = 0.1), expand=c(0,0)) +  # Customize x-axis ticks
-  scale_color_manual(values = c("#DF536B", "#000000"))+
+  scale_color_manual(values = c("#EE6677", "#000000"))+
   scale_y_continuous(sec.axis = sec_axis(~.*1, name="Bias",breaks = seq(0,1, by = 0.1)),
                      limits = c(-0.01, 1), breaks = seq(0, 1, by = 0.1), expand=c(0,0))
 
 }
 
 
-#' Plotting Function Figure 2
+#' Plotting Function Figure 1
+#' @description Function to create the subplots of Figure 1
+#'
 #'
 #' @export
 p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
