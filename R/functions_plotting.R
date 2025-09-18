@@ -187,8 +187,8 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, I2, weights, mod.title = "M
   return(p)
 }
 
-
-#' @noRd
+#' Generates Figure with 4 sub Figures and one legend
+#' @export
 plot_grid_1legend <- function(p1, p2, p3, p4, legend){
   g <- ggplot2::ggplotGrob(p1)
   legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
