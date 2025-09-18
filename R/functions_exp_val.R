@@ -280,9 +280,8 @@ exp_val_continuous <- function(PB, Zcv, N, Nvec, I2, x1, x1vec, beta0, beta1){
 
 
 #' weighted-least squares estimate of betas using the expected effect sizes given
-#' publication bias instead of observed effect sizes
-#'
-#' @export
+#' publication bias instead of observed effect sizes. Used in the PB_betas function
+#' @noRd
 betas_PB <- function(data){
   W <- diag(1/(data$vg+data$tau2))
   X <- matrix(c(rep(1,nrow(data)),data$x1), byrow = F, ncol =2)
@@ -290,8 +289,16 @@ betas_PB <- function(data){
   return(betas_PB)
 }
 
-#' calls publication biased data via exp_val_MA and calculates publication biased betas using betas_PB
-#'
+#' @description calls publication biased data via exp_val_MA() and calculates publication biased betas using betas_PB()
+#' @param dat data frame with columns vi, and NoPB
+#' @param beta0 true intercept in the meta-analysis
+#' @param beta1 true slope or moderator effect in the meta-analysis
+#' @param PB publication bias (0 = extreme publication bias, 1 = no publication bias)
+#' @param I2 residual heterogeneity indicator in form of I2
+#' @param mods moderator variable (as would be inputted in the metafor mods statement)
+#' @param Zcv critical Z value for testing the primary study effect sizes
+#' @return This function return a vector with the estimated intercept and slope
+#' parameters give publication bias (i.e, c(b0, b1))
 #' @export
 PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv ){
 
