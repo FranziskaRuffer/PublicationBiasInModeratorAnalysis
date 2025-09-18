@@ -5,7 +5,7 @@
 \title{Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I2}).
 exp_val_MA}
 \usage{
 exp_val_continuous(PB, Zcv, N, Nvec, I2, x1, x1vec, beta0, beta1)
@@ -38,5 +38,5 @@ This function returns a single numeric value of the expected effect size given p
 Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I^2}).
 }

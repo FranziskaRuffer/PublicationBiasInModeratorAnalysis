@@ -10,7 +10,7 @@ Parameter:
 \item N = total sample size (N = nT + nC)
 \item Zcv = critical Z value (used to calculate the critical value ycv)
 \item vg = sampling variance Hedges' g
-\item tau2 = (residual) between-study variance
+\item tau2 = (residual) between-study variance (\eqn{\tau^2})
 \item I2 = porportion of within- to (residual) between-study variance
 \item E_sig = Expected effect size upper truncated normal distribution (significant effect sizes)
 \item E_nsig = Expected effect size lower truncated normal distribution (nonsignificant effect sizes)
@@ -33,7 +33,7 @@ exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA)
 
 \item{I2}{heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)}
 
-\item{tau2}{heterogeneity estimate in the meta-analysis (not necessary when I2 is specified)}
+\item{tau2}{heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)}
 }
 \value{
 This function returns a single numeric value of the expected effect size given publication bias for a given effect size

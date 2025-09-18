@@ -1,7 +1,11 @@
 
 #' Plotting Function Figure 2
 #' @description Function to create the subplot of Figure 2
-#'
+#' @param data data to be used in the plot
+#' @param title character string with the plot title
+#' @param size_text text size in the plot (default = 8)
+#' @param axis_text axis text size in the plot (default = 23)
+#' @returns A figure with true effect sizes on the x-axis and publication biased effect sizes on the y-axis.
 #' @export
 p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
   ggplot(data=data,aes(x=g, y=E, linetype=PB)) +
@@ -47,8 +51,13 @@ p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
 
 #' Plotting Function Figure 1
 #' @description Function to create the subplots of Figure 1
-#'
-#'
+#' @param data data to be used in the plot
+#' @param x character string that specified a column in data to be used as true effect size (x-axis)
+#' @param y character string that specified a column in data to be used as bias (x-axis)
+#' @param title character string with the plot title
+#' @param size_text text size in the plot (default = 8)
+#' @param axis_text axis text size in the plot (default = 23)
+#' @returns Returns a plot with the true effect sizes on the x-axis and the amount of bias in the effect sizes due to publication bias on the y-axis.
 #' @export
 p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
   ggplot2::ggplot(data=data,aes(x=get(x, data), y=get(y, data), linetype=PB)) +
@@ -82,6 +91,17 @@ p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
 }
 
 #' Shiny app final default plot
+#' @description Function to create the shiny app default plot used in sensitivity publication bias analyses for moderator effects in meta-analysis.
+#' @param dat dataframe to be used for plotting
+#' @param mods moderator variable
+#' @param mem metafor mixed-effects meta-analysis model
+#' @param Zcv critical Z value for testing effect sizes
+#' @param beta0 true intercept in the meta-analysis
+#' @param beta1 true slope/moderator effect in the meta-analysis
+#' @param mod.title character string with the x-axis label specifying the moderator (default = "Moderator value")
+#' @param I2res vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))
+#' @param PB vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))
+#' @returns  Shiny app final default plot
 #' @export
 PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
                              I2res=c(0, 0.25, 0.5, 0.75), PB=c(0, 0.05, 0.2, 0.5, 1)){
@@ -145,6 +165,15 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
 }
 
 #' Shiny app additional plot
+#' @param data dataframe to be used for plotting
+#' @param mem metafor mixed-effects meta-analysis model
+#' @param betasPB vector with two values; the publication biased intercept and slope estimates from the meta-analysis
+#' @param beta0 true intercept in the meta-analysis
+#' @param beta1 true slope/moderator effect in the meta-analysis
+#' @param mod.title character string with the x-axis label specifying the moderator (default = "Moderator value")
+#' @param I2 single value between 0 and 1 specifying the level of residual I2
+#' @param PB single value between 0 and 1 specifyin the publication bias
+#' @returns additional Shiny app plot
 #' @export
 Plot_additional_analysis <- function(data, beta0, beta1, I2, PB, mem, betasPB, mod.title = "Moderator value"){
 
@@ -236,9 +265,15 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, I2, weights, mod.title = "M
   return(p)
 }
 
-#' Generates Figure with 4 sub Figures and one legend
+#' Generates a figure with 4 sub figures and one legend
+#' @description Generates a figure with 4 sub figures and one legend
+#' @param p1 first ggplot figure
+#' @param p2 second ggplot figure
+#' @param p3 third ggplot figure
+#' @param p4 fourth ggplot figure
+#' @returns a ggplot figure
 #' @export
-plot_grid_1legend <- function(p1, p2, p3, p4, legend){
+plot_grid_1legend <- function(p1, p2, p3, p4){
   g <- ggplot2::ggplotGrob(p1)
   legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
   p <- cowplot::plot_grid(
@@ -253,7 +288,11 @@ plot_grid_1legend <- function(p1, p2, p3, p4, legend){
   return(p)
 }
 
-#' Generates Figure with 2 sub Figures in a row and one legend
+#' Generates a figure with two sub figures in a row and one legend
+#' #' @description Generates a figure with 2 sub figures and one legend
+#' @param p1 first ggplot figure
+#' @param p2 second ggplot figure
+#' @returns a ggplot figure
 #' @export
 plot_grid_1legend_2p <- function(p1, p2, legend){
   g <- ggplot2::ggplotGrob(p1)
