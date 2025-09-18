@@ -2,8 +2,8 @@ Package: PublicationBiasInModeratorAnalysis
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Franziska", "Rüffer", , "f.f.ruffer@gmail.com", role = c("aut", "cre"))
+Description: Publication bias sensitvity analyses for moderator effects in meta-analyses.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
