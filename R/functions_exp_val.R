@@ -1,15 +1,15 @@
 #' Functions to obtain the expected effect sizes given publication bias
-#' Parameter:   
+#' Parameter:
 #' * PB = Publication Bias... proportion of non-significant effect sizes published
 #' * g = true effect size as standardized mean difference in form of Hedges' g
 #' * N = total sample size (N = nT + nC)
 #' * Zcv = critical Z value (used to calculate the critical value ycv)
 #' * vg = sampling variance Hedges' g
-#' * tau2 = (residual) between-study variance 
+#' * tau2 = (residual) between-study variance
 #' * I2 = porportion of within- to (residual) between-study variance
 #' * E_sig = Expected effect size upper truncated normal distribution (significant effect sizes)
 #' * E_nsig = Expected effect size lower truncated normal distribution (nonsignificant effect sizes)
-#' * E = expected effect size given publication bias 
+#' * E = expected effect size given publication bias
 #' * p_ns = probability of a non-significant effect size
 
 
@@ -26,15 +26,15 @@
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size
 #' @export
 exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
-  
+
   if(is.na(I2)==TRUE & is.na(tau2) ==TRUE ){
-    stop("Please specify the amount of heterogeneity as I2 or tau2. If you 
+    stop("Please specify the amount of heterogeneity as I2 or tau2. If you
          assume no heterogeneity, set either of them to zero. ")
   }
-  
+
   #balanced sample size in compared groups (N/2)
   nT <- nC <- N/2
-  
+
   #exact sampling variance Hedges' g ( Viechtbauer (2007, Eq. 22))
   if(N >120){
     cm <- 1-(3/(4*(N-2)-1))
@@ -42,33 +42,33 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
     cm <- gamma((N-2)/2) /
       (sqrt((N-2)/2) * gamma((N-3)/2))
   }
-  
-  vg <- ((cm)^2 * (N-2) * 
+
+  vg <- ((cm)^2 * (N-2) *
            (1 +  nT*nC/(nT + nC) * g^2 )
   ) / (
     (N-4) * (nT*nC / (nT + nC))  ) - g^2
-  
+
   #critical value
   ycv <- Zcv*sqrt(vg)
-  
-  #heterogeneity 
+
+  #heterogeneity
   if(is.na(tau2)==TRUE){
     tau2 <- (I2 * vg) / (1-I2)
   } else { I2 <- tau2/(vg + tau2)}
-  
+
   #probability of obtaining a non-significant result
-  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
-  
+  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+
   #expectation significant studies
-  E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = FALSE) 
-  
+  E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = FALSE)
+
   #expectation nonsignificant studies
-  E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
-  
+  E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+
   #expectation given publication bias
-  E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) / 
+  E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
     (PB * p_ns + (1-p_ns))
-  
+
   return(data.frame(N, vg, tau2, I2, PB, g, ycv, E_sig, E_nsig, E))
 }
 
@@ -88,24 +88,24 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
 #' @param Nvec Vector of all primary study total sample sizes in the meta-analysis (not necessary when vg and vgvec are specified)
 #' @param vg Primary study sampling variance (not necessary when N and Nvec are specified)
 #' @param vgvec Vector of all primary study sampling variances in the meta-analysis (not necessary when N and Nvec are specified)
-#' @param I2 heterogeneity estimate in the meta-analysis 
+#' @param I2 heterogeneity estimate in the meta-analysis
 #' @param g True effect size as standardized mean difference (we used Hedges' g)
 #' @param N Primary study total sample size
-#' @param I2 residual heterogeneity estimate in the meta-analysis 
+#' @param I2 residual heterogeneity estimate in the meta-analysis
 #' @param x1 moderator value of the given study in the meta-analysis
 #' @param x1vec vector with moderator values of all studies in the meta-analysis
 #' @param beta0 true intercept parameter of the meta-analysis
 #' @param beta1 true slope parameter (moderator effect) of the meta-analysis
-#' @param NoPB whether the given primary study is assumed to be affected by publication bias (FALSE = default) or 
+#' @param NoPB whether the given primary study is assumed to be affected by publication bias (FALSE = default) or
 #'            whether the study is unaffected by publication bias (TRUE)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.
 #' @export
 exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec, beta0, beta1, NoPB=FALSE){
-  
+
   #true effect size
   g <- beta0 + beta1*x1
   gvec <- beta0 + beta1*x1vec
-  
+
   if(is.na(N)==TRUE & length(Nvec)==1 & is.na(vg)==TRUE & length(vgvec)==1){
     stop("Please specify either vg and vgvec or N and Nvec.")
   } else if(is.na(N)==FALSE & length(Nvec)==1& is.na(vg)==TRUE & length(vgvec)==1){
@@ -117,13 +117,13 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
   }else if(is.na(N)==TRUE & length(Nvec)==1 & is.na(vg)==TRUE & length(vgvec)> 1){
     stop("Please specify vg.")
   }else if(is.na(N)==FALSE & length(Nvec)>1 & is.na(vg)==TRUE& length(vgvec)==1){
-   
+
     #balanced sample size in compared groups (N/2)
     nT <- ceiling(N/2)
     nC <- floor(N/2)
     nTvec <- ceiling(Nvec/2)
-    nCvec <- floor(Nvec/2) 
-    
+    nCvec <- floor(Nvec/2)
+
     if(sum(Nvec >200)>=1){
       cmvec <- 1-(3/(4*(Nvec-2)-1))
       cm <- 1-(3/(4*(N-2)-1))
@@ -133,61 +133,61 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
       cm <- gamma((N-2)/2) /
         (sqrt((N-2)/2) * gamma((N-3)/2))
     }
-    #sampling variance of single study 
-    vg <- ((cm)^2 * (N-2) * 
+    #sampling variance of single study
+    vg <- ((cm)^2 * (N-2) *
              (1 +  nT*nC/(nT + nC) * g^2 )
     ) / (
       (N-4) * (nT*nC / (nT + nC))  ) - g^2
-    
+
     #vector of sampling variances for all studies
-    vgvec <- ((cmvec)^2 * (Nvec-2) * 
+    vgvec <- ((cmvec)^2 * (Nvec-2) *
                 (1 +  nTvec*nCvec/(nTvec + nCvec) * gvec^2 )
     ) / (
       (Nvec-4) * (nTvec*nCvec / (nTvec + nCvec))  ) - gvec^2
   }
-  
+
 
   #critical value
   ycv <- Zcv*sqrt(vg)
-  
+
   ### Compute typical within-study variance of these two studies. Equation (9) in
   w <- c(1/vgvec)
   k <- length(w)
   # Takkouche et al. (1999, 2013)
   typ_v_T <- k * (1/sum(w))  #equal to vg if k = 1, or if all N are the same size
-  
-  #heterogeneity 
+
+  #heterogeneity
   tau2 <- (I2 * typ_v_T) / (1-I2)
-  
+
   #probability of obtaining a non-significant result
-  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
-  
+  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+
   #expectation significant studies
-  #for large values, the ratio of the standard normal pdf/cdf and pdf/(1-cdf)  
+  #for large values, the ratio of the standard normal pdf/cdf and pdf/(1-cdf)
   #will be approximated to avoid missing values (NAs)
   Z = (ycv-g)/sqrt(vg+tau2)
-  if(Z > 35){  
+  if(Z > 35){
     #expectation significant studies
-    E_sig <- g + sqrt(vg+tau2) * Z  # Z -> Inf, then with the l'Hopital rule pdf/(1-cdf) -> Z  
+    E_sig <- g + sqrt(vg+tau2) * Z  # Z -> Inf, then with the l'Hopital rule pdf/(1-cdf) -> Z
     #expectation non-significant studies
-    E_nsig <- g - sqrt(vg+tau2)* 0 # Z -> Inf, then pdf/(cdf) -> 0/1 -> 0  
-  } else if (Z < -35){ 
-    E_sig <- g + sqrt(vg+tau2) * 0 # Z -> -Inf, then pdf/(1-cdf) -> 0/1 -> 0 
+    E_nsig <- g - sqrt(vg+tau2)* 0 # Z -> Inf, then pdf/(cdf) -> 0/1 -> 0
+  } else if (Z < -35){
+    E_sig <- g + sqrt(vg+tau2) * 0 # Z -> -Inf, then pdf/(1-cdf) -> 0/1 -> 0
     E_nsig <- g - sqrt(vg+tau2) * (-Z) #Z -> -Inf, then with the l'Hopital rule pdf/cdf -> -Z
   } else {
-    E_sig <- g + sqrt(vg+tau2)* dnorm(Z) / pnorm(Z, lower.tail = FALSE) 
-    E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
+    E_sig <- g + sqrt(vg+tau2)* dnorm(Z) / pnorm(Z, lower.tail = FALSE)
+    E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
   }
-  
+
   #expectation given publication bias
   if(NoPB == FALSE){
-    E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) / 
+    E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
       (PB * p_ns + (1-p_ns))
   }else if(NoPB == TRUE){
-    E <- (1 * p_ns * E_nsig + (1-p_ns) * E_sig) / 
+    E <- (1 * p_ns * E_nsig + (1-p_ns) * E_sig) /
       (1 * p_ns + (1-p_ns))
   }
-  
+
   return(data.frame(vg, typ_v_T, tau2, I2, PB, g, x1, beta0, beta1, ycv, NoPB, E_sig, E_nsig, E))
 }
 
@@ -210,7 +210,7 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
 #' @param I2 heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)
 #' @param g True effect size as standardized mean difference (we used Hedges' g)
 #' @param N Primary study total sample size
-#' @param I2 residual heterogeneity estimate in the meta-analysis 
+#' @param I2 residual heterogeneity estimate in the meta-analysis
 #' @param x1 moderator value of the given study in the meta-analysis
 #' @param x1vec vector with moderator values of all studies in the meta-analysis
 #' @param beta0 true intercept parameter of the meta-analysis
@@ -218,17 +218,17 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.
 #' @export
 exp_val_continuous <- function(PB, Zcv, N, Nvec, I2, x1, x1vec, beta0, beta1){
-  
+
   #true effect size
   g <- beta0 + beta1*x1
   gvec <- beta0 + beta1*x1vec
-  
+
   #balanced sample size in compared groups (N/2)
   nT <- ceiling(N/2)
   nC <- floor(N/2)
   nTvec <- ceiling(Nvec/2)
-  nCvec <- floor(Nvec/2) 
-  
+  nCvec <- floor(Nvec/2)
+
   if(sum(Nvec >200)>=1){
     cmvec <- 1-(3/(4*(Nvec-2)-1))
     cm <- 1-(3/(4*(N-2)-1))
@@ -238,48 +238,49 @@ exp_val_continuous <- function(PB, Zcv, N, Nvec, I2, x1, x1vec, beta0, beta1){
     cm <- gamma((N-2)/2) /
       (sqrt((N-2)/2) * gamma((N-3)/2))
   }
-  #sampling variance of single study 
-  vg <- ((cm)^2 * (N-2) * 
+  #sampling variance of single study
+  vg <- ((cm)^2 * (N-2) *
            (1 +  nT*nC/(nT + nC) * g^2 )
   ) / (
     (N-4) * (nT*nC / (nT + nC))  ) - g^2
-  
+
   #vector of sampling variances for all studies
-  vgvec <- ((cmvec)^2 * (Nvec-2) * 
+  vgvec <- ((cmvec)^2 * (Nvec-2) *
               (1 +  nTvec*nCvec/(nTvec + nCvec) * gvec^2 )
   ) / (
     (Nvec-4) * (nTvec*nCvec / (nTvec + nCvec))  ) - gvec^2
-  
+
   #critical value
   ycv <- Zcv*sqrt(vg)
-  
+
   ### Compute typical within-study variance of these two studies. Equation (9) in
   w <- c(1/vgvec)
   k <- length(w)
   # Takkouche et al. (1999, 2013)
   typ_v_T <- k * (1/sum(w))  #equal to vg if k = 1, or if all N are the same size
-  
-  #heterogeneity 
+
+  #heterogeneity
   tau2 <- (I2 * typ_v_T) / (1-I2)
-  
+
   #probability of obtaining a non-significant result
-  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
-  
+  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+
   #expectation significant studies
-  E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = FALSE) 
-  
+  E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = FALSE)
+
   #expectation nonsignificant studies
-  E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE) 
-  
+  E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+
   #expectation given publication bias
-  E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) / 
+  E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
     (PB * p_ns + (1-p_ns))
-  
+
   return(data.frame(N, vg, typ_v_T, tau2, I2, PB, g, x1, beta0, beta1, ycv, E_sig, E_nsig, E))
 }
 
 
-#' weighted-least squares estimate of betas using E[g|PB] instead of observed effect sizes
+#' weighted-least squares estimate of betas using the expected effect sizes given
+#' publication bias instead of observed effect sizes
 #'
 #' @noRd
 betas_PB <- function(data){
@@ -289,18 +290,18 @@ betas_PB <- function(data){
   return(betas_PB)
 }
 
-#' calls publication biased data via exp_val_MA and calulates publication biased betas using betas_PB 
+#' calls publication biased data via exp_val_MA and calculates publication biased betas using betas_PB
 #'
 #' @noRd
 PB_betas = function(dat, beta0, beta1, PB, I2, mods, Zcv ){
-  
+
   PBdat = do.call(rbind, lapply(1:nrow(dat), function(i)  {
-    exp_val_MA(PB=PB, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, x1=mods[i], 
+    exp_val_MA(PB=PB, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, x1=mods[i],
               x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i])
   } ))
-  
+
   betas <- betas_PB(PBdat)
-  
+
   return(betas)
 }
 
@@ -323,17 +324,17 @@ sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0){
   f_sol <- uniroot(diffE , N1 = N1, N2 = N2, g1 = g1, Zcv = Zcv,
                    PB1=PB1, PB2 = PB2, I2=I2, interval = c(0.00001, g1+3))
   return(as.numeric(f_sol$root))
-  
+
 }
 
 
 #' function to flatten nested lists
 #'
 #' @noRd
-flattenlist     <- function(x){  
+flattenlist     <- function(x){
   more_lists <- sapply(x, function(first_x) class(first_x)[1]=="list")
   out        <- c(x[!more_lists], unlist(x[more_lists], recursive=FALSE))
-  if(sum(more_lists)){ 
+  if(sum(more_lists)){
     Recall(out)
   }else{
     return(out)
