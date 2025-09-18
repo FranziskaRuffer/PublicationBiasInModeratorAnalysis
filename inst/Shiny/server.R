@@ -1,3 +1,4 @@
+library(PublicationBiasInModeratorAnalysis)
 server <- function(input, output, session){
   data <- reactive({
     req(input$upload)

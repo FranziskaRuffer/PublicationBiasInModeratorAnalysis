@@ -9,4 +9,6 @@
 #' library(PublicationBiasInModeratorAnalysis)
 #' shiny::runApp(system.file("shiny", package = "PublicationBiasInModeratorAnalysis"))
 library(PublicationBiasInModeratorAnalysis)
+source("ui.R")
+source("server.R")
 shinyApp(ui, server)
