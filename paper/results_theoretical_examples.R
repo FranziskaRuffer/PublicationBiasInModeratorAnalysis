@@ -242,7 +242,7 @@ p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(a)*":"~N=
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)
 Fig2
-ggsave(plot = Fig2, filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
+ggsave(plot = Fig2, filename = "Figures/Figure2.svg",  width = 1306*0.3, height = 701*0.3, units = "mm",limitsize = FALSE)
 
 
 ##################### ----------  FIGURE 3  ---------------- ###################
@@ -264,7 +264,7 @@ dat_1c$b1 <- dat_1c$g - dat_1c$g  #always zero
 #-> so E(b1) == bias(b1)
 dat_1c$PB <- factor(dat_1c$PB)
 p3b <- p_bias_exp_val(dat_1c, x = "g", y="bias_b1",
-                      title = expression(bolditalic(b)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0.3132) )
+                      title = expression(bolditalic(b)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0.313) )
 
 #Create Figure 3 and save as svg
 Fig3 <- plot_grid_1legend_2p(p3a, p3b)
