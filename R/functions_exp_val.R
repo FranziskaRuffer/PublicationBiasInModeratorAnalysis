@@ -289,6 +289,7 @@ betas_PB <- function(data){
   return(betas_PB)
 }
 
+#' Publication biased intercept and slope parameters in a meta-anaylsis with one moderator
 #' @description calls publication biased data via exp_val_MA() and calculates publication biased betas using betas_PB()
 #' @param dat data frame with columns vi, and NoPB
 #' @param beta0 true intercept in the meta-analysis
