@@ -193,10 +193,10 @@ plot_grid_1legend <- function(p1, p2, p3, p4, legend){
   g <- ggplot2::ggplotGrob(p1)
   legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
   p <- cowplot::plot_grid(
-    cowplot::plot_grid(p1 + theme(legend.position = "none"),
-              p2 + theme(legend.position = "none"),
-              p3 + theme(legend.position = "none"),
-              p4 + theme(legend.position = "none"), ncol = 2),  # 2x2 grid of plots
+    cowplot::plot_grid(p1 + ggplot2::theme(legend.position = "none"),
+              p2 + ggplot2::theme(legend.position = "none"),
+              p3 + ggplot2::theme(legend.position = "none"),
+              p4 + ggplot2::theme(legend.position = "none"), ncol = 2),  # 2x2 grid of plots
     legend,  # Add extracted legend below
     ncol = 1,  # Arrange in one column (plots on top, legend below)
     rel_heights = c(3, 0.4)  # Adjust relative height of grid vs legend

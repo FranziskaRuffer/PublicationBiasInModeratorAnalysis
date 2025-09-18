@@ -327,7 +327,7 @@ diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2){
 
 #' Solves for the true effect size g2 in group2, s.t. E1=E2 (hidden moderator effect)
 #'
-#' @noRd
+#' @export
 sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0){
   f_sol <- uniroot(diffE , N1 = N1, N2 = N2, g1 = g1, Zcv = Zcv,
                    PB1=PB1, PB2 = PB2, I2=I2, interval = c(0.00001, g1+3))
