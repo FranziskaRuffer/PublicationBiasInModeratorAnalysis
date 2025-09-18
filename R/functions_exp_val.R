@@ -293,7 +293,7 @@ betas_PB <- function(data){
 #' calls publication biased data via exp_val_MA and calculates publication biased betas using betas_PB
 #'
 #' @export
-PB_betas = function(dat, beta0, beta1, PB, I2, mods, Zcv ){
+PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv ){
 
   PBdat = do.call(rbind, lapply(1:nrow(dat), function(i)  {
     exp_val_MA(PB=PB, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, x1=mods[i],
