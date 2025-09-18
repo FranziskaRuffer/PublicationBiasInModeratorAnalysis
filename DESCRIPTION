@@ -14,3 +14,5 @@ Imports:
     bslib (>= 0.9.0),
     ggplot2 (>= 3.5.2),
     cowplot (>= 1.2.0)
+Remotes:
+    FranziskaRuffer/PublicationBiasInModeratorAnalysis
