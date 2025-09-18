@@ -1,5 +1,5 @@
 Package: PublicationBiasInModeratorAnalysis
-Title: What the Package Does (One Line, Title Case)
+Title: Shiny app for publication bias sensitivity analyses as well as analysis code from the accompanying paper. 
 Version: 0.0.0.9000
 Authors@R: 
     person("Franziska", "Rüffer", , "f.f.ruffer@gmail.com", role = c("aut", "cre"))

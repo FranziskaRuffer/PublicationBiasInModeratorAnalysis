@@ -5,7 +5,7 @@
 #' * N = total sample size (N = nT + nC)
 #' * Zcv = critical Z value (used to calculate the critical value ycv)
 #' * vg = sampling variance Hedges' g
-#' * tau2 = (residual) between-study variance
+#' * tau2 = (residual) between-study variance (\eqn{\tau^2})
 #' * I2 = porportion of within- to (residual) between-study variance
 #' * E_sig = Expected effect size upper truncated normal distribution (significant effect sizes)
 #' * E_nsig = Expected effect size lower truncated normal distribution (nonsignificant effect sizes)
@@ -22,7 +22,7 @@
 #' @param g True effect size as standardized mean difference (we used Hedges' g)
 #' @param N Primary study total sample size
 #' @param I2 heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)
-#' @param tau2 heterogeneity estimate in the meta-analysis (not necessary when I2 is specified)
+#' @param tau2 heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size
 #' @export
 exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
@@ -75,13 +75,13 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
 #' Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 #' with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 #' true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-#' calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+#' calculating the residual $$tau^2$$ for a given residual $$I^2$$.
 #' exp_val_MA
 #'
 #' @description Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 #' with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 #' true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-#' calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+#' calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I^2}).
 #' @param PB amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)
 #' @param Zcv critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).
 #' @param N Primary study total sample size of a given study (not necessary when vg and vgvec are specified)
@@ -196,13 +196,13 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
 #' Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 #' with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 #' true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-#' calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+#' calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I2}).
 #' exp_val_MA
 #'
 #' @description Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
 #' with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 #' true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
-#' calculating the residual $$\tau^2$$ for a given residual $$I^2$$.
+#' calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I^2}).
 #' @param PB amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)
 #' @param Zcv critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).
 #' @param N Primary study total sample size of a given study

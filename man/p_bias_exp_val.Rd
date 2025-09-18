@@ -2,10 +2,10 @@
 % Please edit documentation in R/functions_plotting.R
 \name{p_bias_exp_val}
 \alias{p_bias_exp_val}
-\title{Plotting Function Figure 2}
+\title{Plotting Function Figure 1}
 \usage{
 p_bias_exp_val(data, x, y, title, size_text = 8, axis_text = 23)
 }
 \description{
-Plotting Function Figure 2
+Function to create the subplots of Figure 1
 }

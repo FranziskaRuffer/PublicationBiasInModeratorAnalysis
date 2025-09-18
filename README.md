@@ -24,9 +24,9 @@ Then run the app directly from your local environment by calling pb_mods_App()
 ```bash
 PublicationBiasInModeratorAnalysis::pb_mods_App()
 ```
-For an example of how to do this, you can have a look at the analysis of the 
+For an example on how to do this, you can have a look at the analysis of the 
 two applied examples. You can find those analyses in the results_applied_examples.R
-Code in the paper folder. 
+code in the paper folder. 
 
 
 ## Reproduce the Analyses 
@@ -41,9 +41,10 @@ on the Red Romance Effect (Lehmann et al., 2017) and the meta-analysis on
 primary care effectiveness interventions (Baskerville et al., 2012).
 
 The second script reproduces all theoretical analyses and the first four figure
-in the paper. 
+in the paper (see paper/Figures). 
 
-Both scripts load all the necessary functions from this R package (see R folder), as well
-as all the necessary additional R packages in their correct version. 
+Both scripts load all the necessary functions from this R package (see R folder), 
+as well as all the necessary additional R packages in the versions used for the 
+original analysis. 
 
 
