@@ -5,9 +5,6 @@
 remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
 
-#load additional packages
-library(svglite) #saving Figures as svg
-
 # helper function to flatten lists
 flattenlist <- function(list){PublicationBiasInModeratorAnalysis:::flattenlist(list)}
 
