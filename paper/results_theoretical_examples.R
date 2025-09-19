@@ -4,6 +4,11 @@
 #' Install and load the Project's R package
 remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
+
+#loading package to save figures as svg
+if (!requireNamespace("svglite", quietly = TRUE)) {
+  install.packages("svglite")
+}
 library(svglite)
 
 # helper function to flatten lists
