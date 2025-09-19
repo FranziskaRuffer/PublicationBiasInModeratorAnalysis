@@ -141,7 +141,7 @@ dat_1d$PB <- factor(dat_1d$PB)
 p1d <- p_bias_exp_val(data=dat_1d, x="g", y="E",
                       title= expression(N==200*","~tau^2==0.313*","~I^2==93.8*"%"))
 
-# plot and save Figure 2 as svg
+# plot and save Figure 1 as svg
 Fig1 <- plot_grid_1legend(p1a ,p1c ,p1b ,p1d)
 #Fig1
 svglite::svglite(filename = "Figure1.svg",
