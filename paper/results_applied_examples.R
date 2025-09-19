@@ -13,6 +13,7 @@ renv::restore()
 library(metafor)
 library(metadat)
 #loading package to save figures as svg
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!requireNamespace("svglite", quietly = TRUE)) {
   install.packages("svglite")
 }

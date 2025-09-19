@@ -6,6 +6,7 @@ remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
 
 #loading package to save figures as svg
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!requireNamespace("svglite", quietly = TRUE)) {
   install.packages("svglite")
 }
