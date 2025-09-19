@@ -3,6 +3,7 @@
 #' Install and load the Project's R package
 remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
+library(ggplot2)
 
 #installing package to save figures as svg, if not installed yet
 options(repos = c(CRAN = "https://cloud.r-project.org"))
@@ -142,7 +143,7 @@ p1d <- p_bias_exp_val(data=dat_1d, x="g", y="E",
 
 # plot and save Figure 2 as svg
 Fig1 <- plot_grid_1legend(p1a ,p1c ,p1b ,p1d)
-Fig1
+#Fig1
 svglite::svglite(filename = "Figure1.svg",
                 width = 1500*0.3 / 25.4, height = 1400*0.3 / 25.4)
 print(Fig1)
@@ -244,7 +245,7 @@ p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(a)*":"~N=
 
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)
-Fig2
+#Fig2
 svglite::svglite(filename = "Figure2.svg",  width = 1306*0.3 / 25.4,
                  height = 701*0.3 / 25.4)
 print(Fig2)
@@ -273,7 +274,7 @@ p3b <- p_bias_exp_val(dat_1c, x = "g", y="bias_b1",
 
 #Create Figure 3 and save as svg
 Fig3 <- plot_grid_1legend_2p(p3a, p3b)
-Fig3
+#Fig3
 svglite::svglite( filename = "Figure3.svg",  width = 2000*0.3 / 25.4,
                   height = 923*0.3 / 25.4)
 print(Fig3)
@@ -363,7 +364,7 @@ p4a <- ggplot(data=dat4,aes(x=g, y=E, linetype=N)) +
   guides(linetype = guide_legend(title.position = "top"))  +# Place legend title on top
   scale_x_continuous(limits = c(0, 0.8), breaks = seq(0, 1, by = 0.1), expand=c(0,0)) +  # Customize x-axis ticks
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1), expand=c(0,0))  # Customize y-axis ticks
-p4a
+#p4a
 
 
 line1a <- dat4[which(dat4$N==40 & dat4$g==0.3),]
@@ -384,8 +385,7 @@ p4b <- p4a +
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE, parse=TRUE, x = 0.42, y = 0.69, size = size_text,
             label= "~theta[a] - theta[b] == -0.257")
-
-p4b
+#p4b
 
 line1b <- dat4[which(dat4$N==40 & dat4$g==0.2),]
 line2b <- dat4[which(dat4$N==80 & dat4$g==g2b),]
@@ -404,7 +404,7 @@ p4c <- p4b +
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.30, y = 0.58, size = size_text,
             label= "~theta[a] - theta[b] ==-0.156")
-p4c
+#p4c
 
 
 line1c <- dat4[which(dat4$N==40 & dat4$g==0.4),]
@@ -424,7 +424,7 @@ p4d <- p4c +
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.55, y = 0.77, size = size_text,
             label=  "~theta[a] - theta[b] ==-0.279")
-p4d
+#p4d
 
 
 line1d <- dat4[which(dat4$N==40 & dat4$g==0.1),]
@@ -444,7 +444,7 @@ Fig4 <- p4d +
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.2, y = 0.40, size = size_text,
             label= "~theta[a] - theta[b] ==-0.061")
-Fig4
+#Fig4
 
 svglite::svglite(filename = "Figure4.svg",  width = 1250*0.3 / 25.4,
                  height = 1300*0.3 / 25.4)
