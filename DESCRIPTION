@@ -13,6 +13,7 @@ Imports:
     shiny (>= 1.11.1),
     bslib (>= 0.9.0),
     ggplot2 (>= 3.5.2),
-    cowplot (>= 1.2.0)
+    cowplot (>= 1.2.0),
+    svglite
 Remotes:
     FranziskaRuffer/PublicationBiasInModeratorAnalysis

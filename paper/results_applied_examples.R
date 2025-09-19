@@ -12,7 +12,11 @@ renv::restore()
 #' Load the required libraries
 library(metafor)
 library(metadat)
-
+#loading package to save figures as svg
+if (!requireNamespace("svglite", quietly = TRUE)) {
+  install.packages("svglite")
+}
+library(svglite)
 
 #' #############################################################################
 #' # Example Binary Moderator: Red Romance Effect (Lehmann et al. (2017))

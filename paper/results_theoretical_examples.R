@@ -4,6 +4,7 @@
 #' Install and load the Project's R package
 remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
+library(svglite)
 
 # helper function to flatten lists
 flattenlist <- function(list){PublicationBiasInModeratorAnalysis:::flattenlist(list)}
