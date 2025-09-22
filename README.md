@@ -1,5 +1,4 @@
 # PublicationBiasInModeratorAnalysis
-[!DOI]()
 
 This project contains the  R code, Figures, Shiny App and data analyses described in the accompanying 
 paper on the "Effects of Publication Bias on Moderator Effects in Meta-Analysis".
@@ -31,7 +30,7 @@ code in the paper folder.
 
 ## Reproduce the Analyses 
 
-To reproduce the all analyses, you can download and rerun two R scripts saved
+To reproduce all analyses, you can download and rerun two R scripts saved
 in the paper folder: 
 * results_applied_examples.R
 * results_theoretical_examples.R
@@ -48,5 +47,5 @@ as well as all the necessary additional R packages in the versions used for the
 original analysis. 
 
 ### License Figures
-and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
+Figures and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
 
