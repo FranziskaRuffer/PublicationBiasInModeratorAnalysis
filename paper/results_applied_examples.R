@@ -1,14 +1,10 @@
 #' This script contains the code to reproduce the Figures for the two applied
 #' examples in the accompanying paper.
-#'
-#' #
 
 #' Install and load the Project's R package
 remotes::install_github("FranziskaRuffer/PublicationBiasInModeratorAnalysis")
 library(PublicationBiasInModeratorAnalysis)
 
-#' Load the correct versions of the required R packages
-renv::restore()
 #' Load the required libraries
 library(metafor)
 library(metadat)
@@ -81,9 +77,26 @@ PB = c(0, 0.05, 0.2, 0.5, 1)
 Zcv <- qnorm(0.025, lower.tail=F) #testing for a positive effect
 
 #' Creating the three default figures from the shiny app manually
-PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta), mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
-PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
-PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+#' and saving them as svg
+Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta), mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+#Fig5
+svglite::svglite(filename = "Figure5.svg",  width = 850*0.3 / 25.4,
+                 height = 707*0.3 / 25.4)
+print(Fig5)
+dev.off()
+
+Fig6 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
+                 height = 707*0.3 / 25.4)
+print(Fig6)
+dev.off()
+
+Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+svglite::svglite(filename = "Figure7.svg",  width = 850*0.3 / 25.4,
+                 height = 707*0.3 / 25.4)
+print(Fig7)
+dev.off()
+
 
 # Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv or .tsv file
 #' Note: Specify another directory, if you do not want ot save the data in your current directory!
@@ -135,10 +148,28 @@ selmodel(mem, "stepfun", steps = c(0.025, 1))
 selmodel(mem_sens, "stepfun", steps = c(0.025, 1))
 
 
-#' Shiny app publication bias plots
-PBanalysis_plots(dat = dat, mods = dat$pperf, mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), mod.title = "Moderator: Number of Practices per Facilitator")
-PBanalysis_plots(dat = dat, mods = dat$pperf, mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, mod.title = "Moderator: Number of Practices per Facilitator")
-PBanalysis_plots(dat = dat, mods = dat$pperf, mem = mem,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Number of Practices per Facilitator")
+#' create Figure 8
+p1 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =0, I2res = 0 , ind = "a")
+p2 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =0, I2res = 0.25 , ind = "b")
+p3 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, I2res = 0 , ind = "c")
+p4 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, I2res = 0.25 , ind = "d")
+p5 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), I2res = 0 , ind = "e")
+p6 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), I2res = 0.25 , ind = "f")
+
+Fig8 <- plot_grid_1legend_6(p1, p2, p3, p4, p5, p6)
+
+svglite::svglite(filename = "Figure8.svg",  width = 850*0.3 / 25.4,
+                 height = 1200*0.3 / 25.4)
+print(Fig8)
+dev.off()
+
+
 
 #' Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv or .tsv file
 #' Note: Specify another directory, if you do not want ot save the data in your current directory!

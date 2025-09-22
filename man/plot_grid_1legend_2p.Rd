@@ -2,8 +2,7 @@
 % Please edit documentation in R/functions_plotting.R
 \name{plot_grid_1legend_2p}
 \alias{plot_grid_1legend_2p}
-\title{Generates a figure with two sub figures in a row and one legend
-#' @description Generates a figure with 2 sub figures and one legend}
+\title{Generates a figure with two sub figures in a row and one legend}
 \usage{
 plot_grid_1legend_2p(p1, p2)
 }
@@ -16,6 +15,5 @@ plot_grid_1legend_2p(p1, p2)
 a ggplot figure
 }
 \description{
-Generates a figure with two sub figures in a row and one legend
-#' @description Generates a figure with 2 sub figures and one legend
+Generates a figure with 2 sub figures and one legend
 }

@@ -219,8 +219,10 @@ Plot_additional_analysis <- function(data, beta0, beta1, I2, PB, mem, betasPB, m
 }
 
 #' @noRd
-plot_contmod <- function(data, I2_PB,  beta0, beta1, I2, weights, mod.title = "Moderator value" ){
-  ind <- ifelse(I2 == 0, "a", ifelse(I2 ==0.25, "b", ifelse(I2 ==0.5, "c", "d")))
+plot_contmod <- function(data, I2_PB,  beta0, beta1, I2, weights, mod.title = "Moderator value", ind = NA){
+  if(is.na(ind) == TRUE){
+    ind <- ifelse(I2 == 0, "a", ifelse(I2 ==0.25, "b", ifelse(I2 ==0.5, "c", "d")))
+  }
 
   title <- substitute(bolditalic(val0) * ":"~beta[0] == val1 * "," ~ beta[1]==val2 * "," ~  "and" ~ I^2 == val3 * "%",
                       list(val0 = ind, val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = I2*100))
@@ -289,7 +291,7 @@ plot_grid_1legend <- function(p1, p2, p3, p4){
 }
 
 #' Generates a figure with two sub figures in a row and one legend
-#' #' @description Generates a figure with 2 sub figures and one legend
+#'@description Generates a figure with 2 sub figures and one legend
 #' @param p1 first ggplot figure
 #' @param p2 second ggplot figure
 #' @returns a ggplot figure
@@ -305,4 +307,66 @@ plot_grid_1legend_2p <- function(p1, p2){
     rel_heights = c(3, 0.4)  # Adjust relative height of grid vs legend
   )
   return(p)
+}
+
+#' function plot 6 plots with one legend
+#'
+#' @noRd
+plot_grid_1legend_6 <- function(p1, p2, p3, p4, p5, p6){
+  g <- ggplot2::ggplotGrob(p1)
+  legend <- g$grobs[which(sapply(g$grobs, function(x) x$name) == "guide-box")][[1]]
+  p <- cowplot::plot_grid(
+    cowplot::plot_grid(p1 + theme(legend.position = "none"),
+              p2 + theme(legend.position = "none"),
+              p3 + theme(legend.position = "none"),
+              p4 + theme(legend.position = "none"),
+              p5 + theme(legend.position = "none"),
+              p6 + theme(legend.position = "none"), ncol = 2),  # 2x3 grid of plots
+    legend,  # Add extracted legend below
+    ncol = 1,  # Arrange in one column (plots on top, legend below)
+    rel_heights = c(3, 0.25)  # Adjust relative height of grid vs legend
+  )
+  return(p)
+}
+
+
+#'Individual Plots shiny app
+#' @noRd
+individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
+                             I2res, PB=c(0, 0.05, 0.2, 0.5, 1), ind){
+
+  exp_given_PB =do.call(rbind, flattenlist(
+    lapply(PB, function(pb) {
+      lapply(1:nrow(dat), function(i)  {
+        exp_val_MA(PB=pb, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2res, x1=mods[i],
+                   x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i])
+      } )})))
+
+  PBbiased_betas <-do.call(rbind, flattenlist(
+    lapply(PB, function(pb) {
+      betas <- betas_PB(subset(exp_given_PB, PB == pb & I2 ==I2res))
+      beta_info <-  data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                               "I2" = I2res, "PB" = pb)
+      return(beta_info)
+    })))
+
+
+  PBbiased_betas$PB <- factor(PBbiased_betas$PB)
+  PB_dat <- merge(exp_given_PB,PBbiased_betas,by=c("I2","PB"))
+  exp_given_PB$PB <- factor(exp_given_PB$PB)
+  original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
+                         "I2"=rep(mem$I2, nrow(dat)), "PB" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
+                         x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
+                         ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                         E = dat$yi)
+  PB_dat <- rbind(exp_given_PB, original )
+  weights <- 1/(original$vg + original$tau2)
+  rel_weights <- weights/max(weights) * 4 +0.5
+
+  #creating the plots
+  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = I2res, "PB" = "original"  )
+  PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==I2res ), I20_PBorig_b )
+  p1 <- plot_contmod(data =subset(PB_dat, PB == "original"), I2_PB=PB_I2_0,  beta0=beta0, beta1=beta1,
+                     I2=I2res, weights=rel_weights, mod.title = mod.title, ind )
+  return(p1)
 }
