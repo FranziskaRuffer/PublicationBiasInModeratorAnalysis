@@ -4,7 +4,16 @@
 \alias{p_bias_exp_val}
 \title{Plotting Function Figure 1}
 \usage{
-p_bias_exp_val(data, x, y, title, size_text = 8, axis_text = 23)
+p_bias_exp_val(
+  data,
+  x,
+  y,
+  title,
+  size_text = 8,
+  axis_text = 23,
+  ymin = -0.01,
+  ymax = 1
+)
 }
 \arguments{
 \item{data}{data to be used in the plot}
@@ -18,6 +27,10 @@ p_bias_exp_val(data, x, y, title, size_text = 8, axis_text = 23)
 \item{size_text}{text size in the plot (default = 8)}
 
 \item{axis_text}{axis text size in the plot (default = 23)}
+
+\item{ymin}{minimum of the y-axis range}
+
+\item{ymax}{maximum of the y-axis range}
 }
 \value{
 Returns a plot with the true effect sizes on the x-axis and the amount of bias in the effect sizes due to publication bias on the y-axis.

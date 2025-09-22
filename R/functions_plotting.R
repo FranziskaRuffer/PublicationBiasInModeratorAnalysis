@@ -57,9 +57,11 @@ p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
 #' @param title character string with the plot title
 #' @param size_text text size in the plot (default = 8)
 #' @param axis_text axis text size in the plot (default = 23)
+#' @param ymin minimum of the y-axis range
+#' @param ymax maximum of the y-axis range
 #' @returns Returns a plot with the true effect sizes on the x-axis and the amount of bias in the effect sizes due to publication bias on the y-axis.
 #' @export
-p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
+p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23, ymin =-0.01, ymax = 1 ){
   ggplot2::ggplot(data=data,aes(x=get(x, data), y=get(y, data), linetype=PB)) +
     geom_line(linewidth=1.2) +
     labs( x = expression(theta[i]) ,
@@ -87,7 +89,7 @@ p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23){
            colour = guide_legend(title.position = "top"))  + # Place legend title on top
     scale_x_continuous(limits = c(0, 0.8), breaks = seq(0, 0.8, by = 0.1), expand=c(0,0)) +  # Customize x-axis ticks
     scale_y_continuous(
-      limits = c(-0.01, 1), breaks = seq(0, 1, by = 0.1), expand=c(0,0))
+      limits = c(ymin, ymax), breaks = seq(-0.1, 1, by = 0.1), expand=c(0,0))
 }
 
 #' Shiny app final default plot
