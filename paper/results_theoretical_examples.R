@@ -51,8 +51,8 @@ dat_1a <- do.call(rbind,flattenlist(
 dat_1a$bias <- dat_1a$E - dat_1a$g
 dat_1a$PB <- factor(dat_1a$PB)
 
-p1a <- p_bias_exp_val(data=dat_1a, x="g", y="E",
-                      title= expression(N==40*","~tau^2==0*","~I^2==0*"%"))
+p1a <- p_bias_exp_val(data=dat_1a, x="g", y="bias",
+                      title= expression(bolditalic(a)*": "*N==40*","~tau^2==0*","~I^2==0*"%"))
 
 
 ### Figure 1b: N = 200, tau2 = I2 = 0
@@ -65,8 +65,8 @@ dat_1b$bias <- dat_1b$E - dat_1b$g
 dat_1b$PB <- factor(dat_1b$PB)
 
 # make Figure 1b
-p1b <- p_bias_exp_val(data=dat_1b,  x="g", y="E",
-                      title= expression(N==200*","~tau^2==0*","~I^2==0*"%"))
+p1b <- p_bias_exp_val(data=dat_1b,  x="g", y="bias",
+                      title= expression(bolditalic(b)*": "*N==200*","~tau^2==0*","~I^2==0*"%"))
 
 # Additional example calculations discussed in the text
 # if theta = 0.1, then the expected moderator effect is (PB=0):
@@ -121,8 +121,8 @@ dat_1c$bias <- dat_1c$E - dat_1c$g
 dat_1c$PB <- factor(dat_1c$PB)
 
 # make Figure 1c
-p1c <- p_bias_exp_val(data=dat_1c,  x="g", y="E",
-                      title= expression(N==40*","~tau^2==0.313*","~I^2==75*"%"))
+p1c <- p_bias_exp_val(data=dat_1c,  x="g", y="bias",
+                      title= expression(bolditalic(c)*": "*N==40*","~tau^2==0.313*","~I^2==75*"%"))
 
 
 ### Figure 1d: N = 200, tau2 = meantau2 = .313
@@ -137,8 +137,8 @@ dat_1d$bias <- dat_1d$E - dat_1d$g
 dat_1d$PB <- factor(dat_1d$PB)
 
 # make Figure 1d
-p1d <- p_bias_exp_val(data=dat_1d, x="g", y="E",
-                      title= expression(N==200*","~tau^2==0.313*","~I^2==93.8*"%"))
+p1d <- p_bias_exp_val(data=dat_1d, x="g", y="bias",
+                      title= expression(bolditalic(d)*": "*N==200*","~tau^2==0.313*","~I^2==93.8*"%"))
 
 # plot and save Figure 1 as svg
 Fig1 <- plot_grid_1legend(p1a ,p1c ,p1b ,p1d)
@@ -273,7 +273,7 @@ round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PB1=0, PB2=0.2, I2=0.75),3) #when the
 round(exp_val(PB=0.2, Zcv=Zcv, g=.432, N=N_medium, I2 = 0.75)$E,3) #E_B = 0.677
 
 # Create sub figure 2b
-p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(a)*":"~N==80*","~I^2==75*"%"))
+p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(b)*":"~N==80*","~I^2==75*"%"))
 
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)

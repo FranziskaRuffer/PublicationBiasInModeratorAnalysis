@@ -78,7 +78,7 @@ Zcv <- qnorm(0.025, lower.tail=F) #testing for a positive effect
 
 #' Creating the three default figures from the shiny app manually
 #' and saving them as svg
-Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta), mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 #Fig5
 svglite::svglite(filename = "Figure5.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
@@ -91,7 +91,7 @@ svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
 print(Fig6)
 dev.off()
 
-Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta), mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 svglite::svglite(filename = "Figure7.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig7)
