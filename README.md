@@ -47,5 +47,15 @@ as well as all the necessary additional R packages in the versions used for the
 original analysis. 
 
 ### License 
-Figures and documentation are licensed under CC-BY-4.0. The source code is licensed under the MIT License.
+The source code is licensed under the MIT License.
+
+Figures and documentation are licensed under  a
+[Creative Commons Attribution 4.0 International License][cc-by].
+
+Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
+[![CC BY 4.0][cc-by-image]][cc-by]
+
+[cc-by]: http://creativecommons.org/licenses/by/4.0/
+[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
+[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
 
