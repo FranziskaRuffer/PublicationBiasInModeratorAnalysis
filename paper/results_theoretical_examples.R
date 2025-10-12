@@ -294,7 +294,7 @@ dat_1a$b1 <- dat_1a$g - dat_1b$g  #always zero
 dat_1a$bias <- dat_1a$bias_b1
 p3a <- p_bias_exp_val(dat_1a, x = "g", y="bias_b1",
                       title = expression(bolditalic(a)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0),
-                      ymin =-0.11, ymax = 0.51)
+                      ymin =-0.11, ymax = 0.51, size_text = 14, axis_text = 30)
 
 # tau2 = 0.313
 dat_1c$E_b1 <- dat_1c$E - dat_1d$E
@@ -304,12 +304,12 @@ dat_1c$b1 <- dat_1c$g - dat_1c$g  #always zero
 dat_1c$PB <- factor(dat_1c$PB)
 p3b <- p_bias_exp_val(dat_1c, x = "g", y="bias_b1",
                       title = expression(bolditalic(b)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0.313),
-                      ymin =-0.11, ymax = 0.51)
+                      ymin =-0.11, ymax = 0.51, size_text = 14, axis_text = 30)
 
 #Create Figure 3 and save as svg
 Fig3 <- plot_grid_1legend_2p(p3a, p3b)
 #Fig3
-svglite::svglite( filename = "Figure3.svg",  width = 2000*0.3 / 25.4,
+svglite::svglite( filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure3.svg",  width = 2000*0.3 / 25.4,
                   height = 923*0.3 / 25.4)
 print(Fig3)
 dev.off()
