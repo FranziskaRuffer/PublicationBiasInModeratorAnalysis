@@ -164,20 +164,46 @@ ui <- fluidPage(
 
         bslib::nav_panel("User Guide",
 
-                         tags$h4(strong("Corresponding Paper")),
+                         tags$h4(strong("Corresponding Paper and Code")),
                   bslib::card(class = "mb-4",
                               helpText("For a more details on the reasoning and formulas behind this application,
-                              check out the correspongind preprint here: LINK")),
+                              check out the correspongind preprint here: [LINK].
+                              The R code for this Shiny app and analyses described in the paper can be found on the Github project page:
+                              https://github.com/FranziskaRuffer/PublicationBiasInModeratorAnalysis. On this page you can also find a guide on how to run
+                              the Shiny app locally in your own R environment.")),
 
                   tags$h4(strong("Default Analyses/Figures")),
                   tags$h5(strong("How to Read the Figures")),
                   bslib::card(class = "mb-4",
-                              helpText("")),
+                              withMathJax(helpText("The purpose of the figures is to indicate how much a moderator effect can be influenced by publication bias,
+                              depending on the characteristics of the meta-analysis. The meta-analysis characterisitcs vary between the sub-figures.
+                              In Figure 1, it is assumed that the true effect for all studies is zero (i.e., the true intercept \\(\\beta_{0}\\) is zero and the true moderator effect
+                              \\(\\beta_{1}\\) is zero).  The sub-figures differ only by the assumed amount
+                              of heterogeneity, as indicated by \\(I_^2\\). In Figures 2 and 3, the true effect size in all studies is equal to half of the the
+                              observed average effect size and the observed average effect size, respectively. Each single sub-figure shows the moderator of interest on the x-axis
+                              and the effect size on the y-axis. The observed effect sizes in your data set are shown as data points in the shape of triangles or circles.
+                              The data point size reflects the effect size's weight in the meta-analysis, that is, the larger the data point, the larger their weight in the meta-analysis. Observed effect sizes
+                              displayed as triangles are assumed to be affected by publication bias (i.e., Publication bias indicator: No Publication Bias = FALSE), while observed effect sizes
+                              displayed as circles were assumed to be free of publication bias (i.e., No Publication Bias = TRUE). The regression line from a mixed-effects meta-regression analysis of the
+                              original data is shown as black solid line. The broken lines in different colours show the mixed-effects meta-regression regression lines given a certain amount of
+                              publication bias and given the assumed true effect sizes and amount of heterogeneity in each sub-figure. For instance, a publication bias of 0.05 refers to assuming that
+                              only 5% of the stastically non-significant effect sizes are published, while all statistically significant effect sizes are published. Hence, a publication bias
+                              of 1 is the same as assuming no publication bias. ",br(),br(),
+                              "Interpretation: Can the results from the analysis of the original data (black solid line) be explained by a combination of true effect size, heterogeneity and publication bias
+                              (broken coloured lines)? A moderator effect may not be robust to publication bias whenever the sensitivity analysis (which always assumes no moderator effect \\(\\beta_{1}\\=0))
+                              produces a similarly strong moderator effect and intercept as the analyiss of the original data (i.e., whenever the black solid line almost overlaps with a broken coloured line).
+                              For examples on how to interpret the default figures, please consult the Results section in our preprint. "))),
 
 
                   tags$h4(strong("Addititional Analysis/Figure")),
                   bslib::card(class = "mb-4",
-                              helpText("")),
+                              helpText("The figure for the additional analysis is similar to those from the default analysis. The difference is that you only see two regression lines, one from
+                                       the original analyis (black solid line) and one from your sensitivity analysis (orange dashed line). By playing around with the input values for the true intercept
+                                       and slope parameters, the true amount of residual heterogeneity and publication bias, you can see whether any combination of values can produce a
+                                       meta-regression line that approaches the line from an analysis of the original data. The exact intercept and slope estimates from this publication bias sensitivity analysis
+                                       is displayed below the figure. In addition, Table 1 contains the results from fitting a random-effect meta-analyis (REM) and a mixed-effects meta-regression (MEM)
+                                       to your data, as well as the results from the publication bias sensitvitiy analysis (PB Sensitivity). You can find more details about the the fitted random and
+                                       mixed-effects mdoels in the 'Metafor Output' tab. Note: the MEM results were used to produce the black solid regression line.")),
 
                   tags$h5(strong("Choosing Realistic Parameter Values for Additional Analyses")),
                   bslib::card(class = "mb-4",
@@ -206,7 +232,7 @@ ui <- fluidPage(
                   tags$h5(strong("Effect Size Measures")),
                   bslib::card(class = "mb-4",
                               helpText("The current version is restricted to be used for approximately normally distributed effect sizes
-                  such as standardized mean differences,... , etc. Please make sure, that you calculated one of these
+                  such as, for instance, standardized mean differences, (Fisher's Z transformed) correlations, and log odds ratios. Please make sure, that you calculated one of these
                                 effect sizes and their standard errors/sampling variances beforehand.")),
 
                   tags$h5(strong("Moderators")),
@@ -218,9 +244,9 @@ ui <- fluidPage(
                   tags$h5(strong("Publication Bias Indicator")),
                   bslib::card(class = "mb-4",
                               helpText("You can specify in your data set whether publication bias may affect an effect size. With the publication bias indicator, you can distinguish between studies that are assumed to be
-                       affected by publication bias and those that are likely not affected by it. This indicator is used in the analysis to only apply publication
+                       affected by publication bias and those that are likely not affected by it. This indicator is a TRUE/FALSE variable and it is used in the analysis to only apply publication
                        bias to those effect sizes for which the indicator is 'FALSE'. For instance, the selection of pre-registered studies for publication could be less or not at all influenced by
-                       whether the effect size is statistically signigicant or not. So, it might make sense to not apply publication bias to those effect sizes from pre-registered studies and
+                       whether the effect size is statistically significant or not. So, it might make sense to not apply publication bias to those effect sizes from pre-registered studies and
                        to, hence, set the publication bias indicator to 'TRUE' for those effect sizes. Another example are unpublished studies, as they were not selected for publication
                        in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'TRUE' for these effect sizes."
                        )),
@@ -228,27 +254,21 @@ ui <- fluidPage(
                   tags$h4(strong("Handling Missing Values")),
                   bslib::card(class = "mb-4",
                               helpText("The current version performs complete case analyses only. This entails that whenever
-                                an effect size, sampling variance/standard error, or moderator value (or Publication Bias
-                                Indicator value 'NoPB') is missing, the information from the corresponding
-                                primary study is excluded from all analysis.")),
+                                an effect size, sampling variance/standard error, or moderator value (or optionally the publication bias
+                                indicator value) is missing, the information from the corresponding
+                                primary study is excluded from all analysis. In this case, a small note pops-up with information
+                                about how many studies were excluded.")),
 
                   tags$h4(strong("Dependencies")),
                   bslib::card(style = "margin-bottom: 60px;",
-                              helpText("The current version does not account for dependencies between effect sizes (e.g.,
-                                several effect sizes coming from the same lab or paper). Such dependencies affect
-                                the standard errors reported in the Metafor Output Tab. Please ignore this output
-                                whenever dependencies are present and conduct a multi-level meta-analysis or
-                                a meta-analysis with robust standard errors instead (e.g., see Cheung, 2019). ")),
+                              helpText("The current version does not account for dependencies between effect sizes.
+                              That is, it is assumed that each study contributes one effect size to the meta-analysis.")),
 
                   tags$h4(strong("References")),
                   bslib::card(style = "margin-bottom: 60px;",
                        div(
                          class = "hanging-indent",
                          "Augusteijn, H. E. M., van Aert, R. C. M., & van Assen, M. A. L. M. (2019). The effect of publication bias on the Q test and assessment of heterogeneity. Psychological Methods, 24(1), 116–134. https://doi.org/10.1037/met0000197"
-                       ),
-                       div(
-                         class = "hanging-indent",
-                         "Cheung, M. W.-L. (2019). A guide to conducting a meta-analysis with non-independent effect sizes. Neuropsychology Review, 29(4), 387–396. https://doi.org/10.1007/s11065-019-09415-6"
                        ),
                        div(
                          class = "hanging-indent",
