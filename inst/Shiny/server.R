@@ -152,12 +152,12 @@ server <- function(input, output, session){
   )
 
   output$download_Fig1 <- downloadHandler(
-    filename = "Bias_Plot1.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot1.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggplot2::ggsave("Bias_Plot1.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
+      ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0,
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
@@ -181,12 +181,12 @@ server <- function(input, output, session){
   )
 
   output$download_Fig2<- downloadHandler(
-    filename = "Bias_Plot2.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot2.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggplot2::ggsave("Bias_Plot2.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
+      ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2,
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
@@ -210,12 +210,12 @@ server <- function(input, output, session){
   )
 
   output$download_Fig3 <- downloadHandler(
-    filename = "Bias_Plot3.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot3.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggplot2::ggsave("Bias_Plot3.png", plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
+      ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
                                                        mod.title = paste0("Moderator: ", input$x1) ,
                                                        I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
@@ -241,12 +241,12 @@ server <- function(input, output, session){
   )
 
   output$download_AddBiasPlot <- downloadHandler(
-    filename = "AddBiasPlot.png",# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"AddBiasPlot.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggplot2::ggsave("AddBiasPlot.png", plot = Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec,
+      ggplot2::ggsave(file, plot = Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec,
                                                                 beta1=PBinfo()$beta1.spec, I2 = PBinfo()$I2res.spec,
                                                                 PB = PBinfo()$PB.spec, mem = PBinfo()$mem,
                                                                 betasPB = PBinfo()$PBbetas),
