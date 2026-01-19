@@ -64,6 +64,10 @@ ui <- fluidPage(
       selectInput("x1", "Moderator", choices = NULL),
       selectInput("NoPB", "Publication Bias indicator (optional)", choices = NULL),
 
+      selectInput("lower.tail", "Sidedness of the effect size testing",
+                  choices = c("Testing for a positive effect (upper tail)." = FALSE,
+                              "Testing for a negative effect (lower tail)." = TRUE)),
+
       numericInput("n", "Number of rows displayed in the 'Dataset' tab.", value = 5, min = 1, step = 1),
 
       h3(strong("Input Additional Analysis")),

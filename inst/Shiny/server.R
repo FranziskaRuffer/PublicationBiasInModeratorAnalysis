@@ -96,8 +96,7 @@ server <- function(input, output, session){
     beta1 = 0
     I2res = c(0, 0.25, 0.5, 0.75)
     PB = c(0, 0.05, 0.2, 0.5, 1)
-    if(rem$beta > 0){Zcv <- qnorm(0.025, lower.tail=F)
-    } else{ Zcv <- qnorm(0.025, lower.tail=T) }
+    Zcv <- qnorm(0.025, lower.tail=as.logical(input$lower.tail))
 
 
     if (input$default == "yes"){
@@ -111,15 +110,15 @@ server <- function(input, output, session){
         need(input$I2.spec >= 0 & input$I2.spec <100, "The specified value for I2res is outside the possible range: [0, 100)."),
         need(!is.null(input$PB.spec), "Please specify a numerical value for PB between 0 and 1."),
         need(is.numeric(input$PB.spec), "The specified value for PBis not numeric."),
-        need(input$PB.spec >= 0 & input$PB.spec <=1, "The specified value for PBis outside the possible range: [0, 1].")
+        need(input$PB.spec >= 0 & input$PB.spec <=1, "The specified value for PB is outside the possible range: [0, 1].")
       )
       beta0.spec = input$beta0.spec
       beta1.spec = input$beta1.spec
       I2res.spec = input$I2.spec/100
       PB.spec = input$PB.spec
-      PBbetas = PublicationBiasInModeratorAnalysis::PB_betas(dat = df, beta0 = beta0.spec,
+      PBbetas = PB_betas(dat = df, beta0 = beta0.spec,   #PublicationBiasInModeratorAnalysis::
                          beta1=beta1.spec, PB.spec,
-                         I2=I2res.spec, mods= df$x1, Zcv = Zcv )
+                         I2=I2res.spec, mods= df$x1, Zcv = Zcv, lower.tail = as.logical(input$lower.tail))
       tab_betas <- matrix(c(round(rem$beta, 4), "-", round(mem$beta[1], 4), round(mem$beta[2], 4),
                             round(PBbetas[1,1], 4), round(PBbetas[2,1], 4)),  byrow = T, nrow=3,
                           dimnames= list(  c("REM", "MEM", "PB Sensitivity"),
@@ -146,7 +145,8 @@ server <- function(input, output, session){
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0,
                             mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB)
+                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            lower.tail = as.logical(input$lower.tail))
       return(p)
     }
   )
@@ -160,7 +160,8 @@ server <- function(input, output, session){
       ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0,
                                                        mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
+                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                                                       lower.tail = as.logical(input$lower.tail)),
              device = device)
     }
   )
@@ -175,7 +176,8 @@ server <- function(input, output, session){
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2,
                             mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB)
+                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            lower.tail = as.logical(input$lower.tail))
       return(p)
     }
   )
@@ -189,7 +191,8 @@ server <- function(input, output, session){
       ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2,
                                                        mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
+                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                                                       lower.tail = as.logical(input$lower.tail)),
              device = device)
     }
   )
@@ -204,7 +207,8 @@ server <- function(input, output, session){
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
                             mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB)
+                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            lower.tail = as.logical(input$lower.tail))
       return(p)
     }
   )
@@ -218,7 +222,8 @@ server <- function(input, output, session){
       ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
                                                        mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB),
+                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                                                       lower.tail = as.logical(input$lower.tail)),
              device = device)
     }
   )

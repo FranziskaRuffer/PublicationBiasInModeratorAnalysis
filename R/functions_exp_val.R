@@ -23,10 +23,11 @@
 #' @param N Primary study total sample size
 #' @param I2 heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)
 #' @param tau2 heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)
+#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size
 #' @importFrom stats dnorm pnorm uniroot
 #' @export
-exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
+exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 
   if(is.na(I2)==TRUE & is.na(tau2) ==TRUE ){
     stop("Please specify the amount of heterogeneity as I2 or tau2. If you
@@ -58,13 +59,19 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
   } else { I2 <- tau2/(vg + tau2)}
 
   #probability of obtaining a non-significant result
-  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = !lower.tail)
 
-  #expectation significant studies
-  E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = FALSE)
-
-  #expectation nonsignificant studies
-  E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+  if(lower.tail == FALSE){
+    #expectation significant studies
+    E_sig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = lower.tail)
+    #expectation nonsignificant studies
+    E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = !lower.tail)
+  } else{
+    #expectation significant studies
+    E_sig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = lower.tail)
+    #expectation nonsignificant studies
+    E_nsig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = !lower.tail)
+  }
 
   #expectation given publication bias
   E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
@@ -98,10 +105,12 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA){
 #' @param beta1 true slope parameter (moderator effect) of the meta-analysis
 #' @param NoPB whether the given primary study is assumed to be affected by publication bias (FALSE = default) or
 #'            whether the study is unaffected by publication bias (TRUE)
+#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.
 #' @importFrom stats dnorm pnorm uniroot
 #' @export
-exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec, beta0, beta1, NoPB=FALSE){
+exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec,
+                       beta0, beta1, NoPB=FALSE, lower.tail = FALSE){
 
   #true effect size
   g <- beta0 + beta1*x1
@@ -161,23 +170,40 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
   tau2 <- (I2 * typ_v_T) / (1-I2)
 
   #probability of obtaining a non-significant result
-  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+  p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = !lower.tail)
 
   #expectation significant studies
   #for large values, the ratio of the standard normal pdf/cdf and pdf/(1-cdf)
   #will be approximated to avoid missing values (NAs)
   Z = (ycv-g)/sqrt(vg+tau2)
-  if(Z > 35){
-    #expectation significant studies
-    E_sig <- g + sqrt(vg+tau2) * Z  # Z -> Inf, then with the l'Hopital rule pdf/(1-cdf) -> Z
-    #expectation non-significant studies
-    E_nsig <- g - sqrt(vg+tau2)* 0 # Z -> Inf, then pdf/(cdf) -> 0/1 -> 0
-  } else if (Z < -35){
-    E_sig <- g + sqrt(vg+tau2) * 0 # Z -> -Inf, then pdf/(1-cdf) -> 0/1 -> 0
-    E_nsig <- g - sqrt(vg+tau2) * (-Z) #Z -> -Inf, then with the l'Hopital rule pdf/cdf -> -Z
-  } else {
-    E_sig <- g + sqrt(vg+tau2)* dnorm(Z) / pnorm(Z, lower.tail = FALSE)
-    E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = TRUE)
+  if(lower.tail == FALSE){
+    if(Z > 35){
+      #expectation significant studies
+      E_sig <- g + sqrt(vg+tau2) * Z  # Z -> Inf, then with the l'Hopital rule pdf/(1-cdf) -> Z
+      #expectation non-significant studies
+      E_nsig <- g - sqrt(vg+tau2)* 0 # Z -> Inf, then pdf/(cdf) -> 0/1 -> 0
+    } else if (Z < -35){
+      E_sig <- g + sqrt(vg+tau2) * 0 # Z -> -Inf, then pdf/(1-cdf) -> 0/1 -> 0
+      E_nsig <- g - sqrt(vg+tau2) * (-Z) #Z -> -Inf, then with the l'Hopital rule pdf/cdf -> -Z
+    } else {
+      E_sig <- g + sqrt(vg+tau2)* dnorm(Z) / pnorm(Z, lower.tail = lower.tail)
+      E_nsig <- g - sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2),
+                                                                        lower.tail = !lower.tail)
+    }
+  } else{
+    if(Z > 35){
+      #expectation significant studies
+      E_sig <- g - sqrt(vg+tau2) * Z  # Z -> Inf, then with the l'Hopital rule pdf/(1-cdf) -> Z
+      #expectation non-significant studies
+      E_nsig <- g + sqrt(vg+tau2)* 0 # Z -> Inf, then pdf/(cdf) -> 0/1 -> 0
+    } else if (Z < -35){
+      E_sig <- g - sqrt(vg+tau2) * 0 # Z -> -Inf, then pdf/(1-cdf) -> 0/1 -> 0
+      E_nsig <- g + sqrt(vg+tau2) * (-Z) #Z -> -Inf, then with the l'Hopital rule pdf/cdf -> -Z
+    } else {
+      E_sig <- g - sqrt(vg+tau2)* dnorm(Z) / pnorm(Z, lower.tail = lower.tail)
+      E_nsig <- g + sqrt(vg+tau2)* dnorm((ycv-g)/sqrt(vg+tau2)) / pnorm((ycv-g)/sqrt(vg+tau2),
+                                                                        lower.tail = !lower.tail)
+    }
   }
 
   #expectation given publication bias
@@ -213,14 +239,16 @@ betas_PB <- function(data){
 #' @param I2 residual heterogeneity indicator in form of I2
 #' @param mods moderator variable (as would be inputted in the metafor mods statement)
 #' @param Zcv critical Z value for testing the primary study effect sizes
+#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function return a vector with the estimated intercept and slope
 #' parameters give publication bias (i.e, c(b0, b1))
 #' @export
-PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv ){
+PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail=FALSE ){
 
   PBdat = do.call(rbind, lapply(1:nrow(dat), function(i)  {
     exp_val_MA(PB=PB, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, x1=mods[i],
-              x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i])
+              x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+              lower.tail = lower.tail)
   } ))
 
   betas <- betas_PB(PBdat)
@@ -232,9 +260,9 @@ PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv ){
 #' Calculates difference in E1-E2 (needed for solve for g2)
 #'
 #' @noRd
-diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2){
-  E1 <- exp_val(PB=PB1, Zcv=Zcv, g=g1, N=N1, I2=I2)$E
-  E2 <- exp_val(PB=PB2, Zcv=Zcv, g=g2, N=N2, I2=I2)$E
+diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2, lower.tail = FALSE){
+  E1 <- exp_val(PB=PB1, Zcv=Zcv, g=g1, N=N1, I2=I2, lower.tail = lower.tail)$E
+  E2 <- exp_val(PB=PB2, Zcv=Zcv, g=g2, N=N2, I2=I2, lower.tail = lower.tail)$E
   diff <- E1-E2
   return(diff)
 }
@@ -251,13 +279,14 @@ diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2){
 #' @param PB1 amount of publication bias in moderator group 1 (can range form 0 to 1)
 #' @param PB2 amount of publication bias in moderator group 2 (can range form 0 to 1)
 #' @param I2 amount of heterogeneity in the meta-analysis expressed as I2
+#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @returns true effect size in second moderator group such that the moderator effect is completely hidden by publication bias.
 #' @export
-sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0){
+sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0, lower.tail = FALSE){
   f_sol <- uniroot(diffE , N1 = N1, N2 = N2, g1 = g1, Zcv = Zcv,
-                   PB1=PB1, PB2 = PB2, I2=I2, interval = c(0.00001, g1+3))
+                   PB1=PB1, PB2 = PB2, I2=I2, lower.tail = lower.tail,
+                   interval = c(0.00001, g1+3))
   return(as.numeric(f_sol$root))
-
 }
 
 

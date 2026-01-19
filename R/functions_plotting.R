@@ -103,17 +103,20 @@ p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23, ym
 #' @param mod.title character string with the x-axis label specifying the moderator (default = "Moderator value")
 #' @param I2res vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))
 #' @param PB vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))
+#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @returns  Shiny app final default plot
 #' @export
 PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
-                             I2res=c(0, 0.25, 0.5, 0.75), PB=c(0, 0.05, 0.2, 0.5, 1)){
+                             I2res=c(0, 0.25, 0.5, 0.75), PB=c(0, 0.05, 0.2, 0.5, 1),
+                             lower.tail = FALSE){
 
   exp_given_PB =do.call(rbind, flattenlist(
     lapply(I2res, function(i2res){
       lapply(PB, function(pb){
         lapply(1:nrow(dat), function(i)  {
           exp_val_MA(PB=pb, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=i2res, x1=mods[i],
-                    x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i])
+                    x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                    lower.tail = lower.tail)
         } )
       })
     } )))
@@ -335,13 +338,14 @@ plot_grid_1legend_6 <- function(p1, p2, p3, p4, p5, p6){
 #'Individual Plots shiny app
 #' @noRd
 individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
-                             I2res, PB=c(0, 0.05, 0.2, 0.5, 1), ind){
+                             I2res, PB=c(0, 0.05, 0.2, 0.5, 1), ind, lower.tail = FALSE){
 
   exp_given_PB =do.call(rbind, flattenlist(
     lapply(PB, function(pb) {
       lapply(1:nrow(dat), function(i)  {
         exp_val_MA(PB=pb, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2res, x1=mods[i],
-                   x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i])
+                   x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                   lower.tail = lower.tail)
       } )})))
 
   PBbiased_betas <-do.call(rbind, flattenlist(
@@ -354,7 +358,7 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
 
 
   PBbiased_betas$PB <- factor(PBbiased_betas$PB)
-  PB_dat <- merge(exp_given_PB,PBbiased_betas,by=c("I2","PB"))
+  PB_dat <- merge(exp_given_PB, PBbiased_betas,by=c("I2","PB"))
   exp_given_PB$PB <- factor(exp_given_PB$PB)
   original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
                          "I2"=rep(mem$I2, nrow(dat)), "PB" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
