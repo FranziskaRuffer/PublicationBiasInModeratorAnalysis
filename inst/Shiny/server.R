@@ -116,7 +116,7 @@ server <- function(input, output, session){
       beta1.spec = input$beta1.spec
       I2res.spec = input$I2.spec/100
       PB.spec = input$PB.spec
-      PBbetas = PB_betas(dat = df, beta0 = beta0.spec,   #PublicationBiasInModeratorAnalysis::
+      PBbetas = PublicationBiasInModeratorAnalysis::PB_betas(dat = df, beta0 = beta0.spec,
                          beta1=beta1.spec, PB.spec,
                          I2=I2res.spec, mods= df$x1, Zcv = Zcv, lower.tail = as.logical(input$lower.tail))
       tab_betas <- matrix(c(round(rem$beta, 4), "-", round(mem$beta[1], 4), round(mem$beta[2], 4),

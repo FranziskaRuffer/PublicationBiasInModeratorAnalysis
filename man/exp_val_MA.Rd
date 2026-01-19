@@ -20,7 +20,8 @@ exp_val_MA(
   x1vec,
   beta0,
   beta1,
-  NoPB = FALSE
+  NoPB = FALSE,
+  lower.tail = FALSE
 )
 }
 \arguments{
@@ -48,6 +49,8 @@ exp_val_MA(
 
 \item{NoPB}{whether the given primary study is assumed to be affected by publication bias (FALSE = default) or
 whether the study is unaffected by publication bias (TRUE)}
+
+\item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }
 \value{
 This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.

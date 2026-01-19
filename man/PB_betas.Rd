@@ -4,7 +4,7 @@
 \alias{PB_betas}
 \title{Publication biased intercept and slope parameters in a meta-anaylsis with one moderator}
 \usage{
-PB_betas(dat, beta0, beta1, PB, I2, mods, Zcv)
+PB_betas(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail = FALSE)
 }
 \arguments{
 \item{dat}{data frame with columns vi, and NoPB}
@@ -20,6 +20,8 @@ PB_betas(dat, beta0, beta1, PB, I2, mods, Zcv)
 \item{mods}{moderator variable (as would be inputted in the metafor mods statement)}
 
 \item{Zcv}{critical Z value for testing the primary study effect sizes}
+
+\item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }
 \value{
 This function return a vector with the estimated intercept and slope

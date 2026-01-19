@@ -13,7 +13,8 @@ PBanalysis_plots(
   beta1 = 0,
   mod.title = "Moderator value",
   I2res = c(0, 0.25, 0.5, 0.75),
-  PB = c(0, 0.05, 0.2, 0.5, 1)
+  PB = c(0, 0.05, 0.2, 0.5, 1),
+  lower.tail = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ PBanalysis_plots(
 \item{I2res}{vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))}
 
 \item{PB}{vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))}
+
+\item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }
 \value{
 Shiny app final default plot

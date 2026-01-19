@@ -20,7 +20,7 @@ Function to obtain the expected value given publication bias for one true effect
 exp_val()
 }}
 \usage{
-exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA)
+exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA, lower.tail = FALSE)
 }
 \arguments{
 \item{PB}{amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)}
@@ -34,6 +34,8 @@ exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA)
 \item{I2}{heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)}
 
 \item{tau2}{heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)}
+
+\item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }
 \value{
 This function returns a single numeric value of the expected effect size given publication bias for a given effect size
