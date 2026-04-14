@@ -1,70 +1,200 @@
 library(PublicationBiasInModeratorAnalysis)
 server <- function(input, output, session){
-  data <- reactive({
-    req(input$upload)
 
-    ext <- tools::file_ext(input$upload$name)
-    switch(ext,
-           csv = readr::read_csv(input$upload$datapath),
-           tsv = readr::read_tsv(input$upload$datapath),
-           validate("Invalid file; Please upload a .csv or .tsv file")
-    )
+  isDefaultData <- reactive({
+    is.null(input$file_upload)  # or however you detect uploads
+  })
+
+  data <- reactive({
+
+    if (is.null(input$upload)) {
+
+      dat <- metadat::dat.lehmann2018
+
+      dat <- dat[, c("yi", "vi", "Preregistered", "Gender", "PRPublication")]
+      dat <- subset(dat, Gender == "Females" & !is.na(Preregistered))
+
+      dat$Preregistered <- ifelse(dat$Preregistered == "Pre-Registered", 1, 0)
+      dat$NoPB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", TRUE, FALSE)
+
+    } else {
+
+      first_line <- readLines(input$upload$datapath, n = 1)
+
+      sep <- if (grepl(";", first_line)) {
+        ";"
+      } else if (grepl("\t", first_line)) {
+        "\t"
+      } else {
+        ","
+      }
+
+      dat <- tryCatch(
+        readr::read_csv(input$upload$datapath, show_col_types = FALSE),
+        error = function(e) NULL
+      )
+
+      if (is.null(dat) || ncol(dat) == 1) {
+        dat <- readr::read_delim(
+          input$upload$datapath,
+          delim = sep,
+          quote = "\"",
+          escape_double = TRUE,
+          trim_ws = TRUE,
+          show_col_types = FALSE
+        )
+      }
+    }
+
+    dat
   })
 
   observeEvent(data(), {
+
     df_cols <- names(data())
 
-    updateSelectInput(session, "yi", choices = c("", df_cols))
-    updateSelectInput(session, "vi", choices = c("", df_cols))
-    updateSelectInput(session, "sei", choices = c("", df_cols))
-    updateSelectInput(session, "x1", choices = c("", df_cols))
-    updateSelectInput(session, "NoPB", choices = c("", df_cols))  # Allow blank option
+    safe_col <- function(i) {
+      if (length(df_cols) >= i) df_cols[i] else df_cols[1]
+    }
+
+    # Preserve user selection if possible
+    pick <- function(current, preferred, fallback) {
+      if (!is.null(current) && current %in% df_cols) {
+        current
+      } else if (preferred %in% df_cols) {
+        preferred
+      } else {
+        fallback
+      }
+    }
+
+    updateSelectInput(
+      session, "yi",
+      choices = c("", df_cols),
+      selected = pick(input$yi, "yi", safe_col(1))
+    )
+
+    updateSelectInput(
+      session, "vi",
+      choices = c("", df_cols),
+      selected = pick(input$vi, "vi", safe_col(2))
+    )
+
+    updateSelectInput(
+      session, "sei",
+      choices = c("", df_cols),
+      selected = if (!is.null(input$sei) && input$sei %in% df_cols) input$sei else ""
+    )
+
+    updateSelectInput(
+      session, "x1",
+      choices = c("", df_cols),
+      selected = pick(input$x1, "Preregistered", safe_col(3))
+    )
+
+    observe({
+      req(data())
+
+      current_names <- names(data())
+
+      # Determine default selection
+      selected_val <- if ("NoPB" %in% current_names && isDefaultData()) {
+        "NoPB"
+      } else {
+        ""
+      }
+
+      updateSelectizeInput(
+        session,
+        "NoPB",
+        choices = c("None" = "", current_names),
+        selected = selected_val,
+        server = TRUE
+      )
+    })
   })
 
   PBinfo <- reactive({
-    cat("PBinfo triggered\n")
     req(data())
     cat("Data loaded\n")
     df <- data()
+    print(readr::problems(df))
 
     req(input$yi, input$x1)
-    cat("yi:", input$yi, " | x1:", input$x1, "\n")
 
-    df$yi <- as.numeric(df[[input$yi]])
-    df$x1 <- as.numeric(df[[input$x1]])
+    # assuring that the effect size variable is numeric
+    df$yi <- suppressWarnings(as.numeric(df[[input$yi]]))
+    validate(
+      need(!all(is.na(df$yi)), "Selected effect size column is not numeric.")
+    )
+
+    # checking if the moderator variable is numeric, otherwise converting it to numeric
+    if (is.numeric(df[[input$x1]])) {
+      df$x1 <- df[[input$x1]]
+    } else {
+      df$x1 <- as.numeric(as.factor(df[[input$x1]]))
+    }
 
     if (input$vtype == "vi"){
       req(input$vi)
+
+      df$vi <- suppressWarnings(as.numeric(df[[input$vi]]))
+      validate(
+        need(!all(is.na(df$vi)), "Selected sampling variance column is not numeric.")
+      )
       validate(
         need(is.numeric(df[[input$vi]]), "Please select a column with numeric values for the sampling variance.")
       )
-      df$vi <- as.numeric(df[[input$vi]])
     } else if (input$vtype == "sei"){
       req(input$sei)
+
+      df$sei <- suppressWarnings(as.numeric(df[[input$sei]]))
       validate(
-        need(is.numeric(df[[input$sei]]), "Please select a column with numeric values for the standard error.")
+        need(!all(is.na(df$sei)), "Selected standard error column is not numeric.")
       )
-      df$vi <- as.numeric(df[[input$sei]])^2
+
+     df$vi <- as.numeric(df[[input$sei]])^2
     }else {
       stop("Unknown sampling variance/SE type. Please choose 'vi' or 'sei'.")
     }
 
-    if(is.null(input$NoPB) || input$NoPB == ""){
-      df$NoPB = rep(FALSE, nrow(df))
-    }else{
-      validate(
-        #need(input$NoPB %in% names(df), "You inputted a label for column to indicate
-        #   which studies are affected by publication bias. This columns does not exist in your data."),
-        need(is.logical(df[[input$NoPB]]) == FALSE, "The column to indicate which studies are affected
-           by publication bias must only contain logical values (i.e., TRUE or FALSE).")
-      )
-      df$NoPB <- df[[input$NoPB]]
+    if (is.null(input$NoPB) || input$NoPB == "" || !(input$NoPB %in% names(df))) {
+      # No column selected → assume all studies potentially biased
+      df$NoPB <- rep(FALSE, nrow(df))
+    } else {
+      col <- df[[input$NoPB]]
+      # Convert common formats to logical
+      if (is.logical(col)) {
+        df$NoPB <- col
+      } else if (is.numeric(col)) {
+        df$NoPB <- col == 1
+        showNotification(
+          paste("The values of the publication bias indicator variable were converted such that a (numeric) value of
+              1 indicates no publication bias (i.e. No Publication Bias = 'TRUE'), while
+              any other value indicates publication bias (i.e. No Publication Bias = 'FALSE')."),
+          type = "warning"
+        )
+      } else if (is.character(col)) {
+        df$NoPB <- tolower(col) %in% c("true", "yes", "1")
+        showNotification(
+          paste("The values of the publication bias indicator variable were converted such that the
+                following (character) values - 'true', 'yes' or '1' - indicate no publication bias (i.e. No Publication Bias = 'TRUE'), while
+                any other value indicates publication bias (i.e. No Publication Bias = 'FALSE')."),
+          type = "warning"
+        )
+      } else {
+        validate(
+          need(FALSE, "NoPB column must be logical, numeric (0/1), or yes/no.")
+        )
+      }
     }
 
     check_cols <- c("yi", "x1", "vi", "NoPB")
-    # Validate that df$vi is numeric and not null
+    # Validate that df$yi exists and df$vi is numeric and not null
     validate(
-      need(!is.null(df$vi), "Computed sampling variance (vi) is NULL."),
+      need(input$yi %in% names(df), "Selected effect size column does not exist.")
+    )
+    validate(
       need(is.numeric(df$vi), "Computed sampling variance (vi) is not numeric.")
     )
 
@@ -246,7 +376,7 @@ server <- function(input, output, session){
   )
 
   output$download_AddBiasPlot <- downloadHandler(
-    filename = function() {"AddBiasPlot.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"AddBiasPlot.png"},
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")

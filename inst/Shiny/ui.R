@@ -38,11 +38,9 @@ ui <- fluidPage(
     sidebarPanel(
 
       #Obtaining data set information
-      # selectInput("modtype", "Type of Moderator",
-      #             c(binary = "binary", continuous = "continuous")),
       h3(strong("Input Default Analysis")),
-      h4("Please upload your meta-analytic data as csv or tsv file."),
-      fileInput("upload", NULL, accept = c(".csv", ".tsv")),
+      h4("Please upload your meta-analytic data as csv, tsv or txt file."),
+      fileInput("upload", NULL, accept = c(".csv", ".tsv", ".txt")),
 
 
       selectInput("yi", "Effect size", choices = NULL),
@@ -62,7 +60,18 @@ ui <- fluidPage(
       ),
 
       selectInput("x1", "Moderator", choices = NULL),
-      selectInput("NoPB", "Publication Bias indicator (optional)", choices = NULL),
+
+      selectizeInput(
+        "NoPB",
+        "Publication bias indicator (optional)",
+        choices = NULL,
+        selected = NULL,
+        options = list(
+          placeholder = "None (optional)",
+          allowEmptyOption = TRUE
+        )
+      ),
+
 
       selectInput("lower.tail", "Sidedness of the effect size testing",
                   choices = c("Testing for a positive effect (upper tail)." = FALSE,
@@ -72,7 +81,7 @@ ui <- fluidPage(
 
       h3(strong("Input Additional Analysis")),
       selectInput("default", "Do you want to deviate from the default setting?",
-                  c( "no",  "yes")),
+                  c("yes", "no")),
 
       conditionalPanel(
         condition = "input.default == 'yes'",
@@ -117,17 +126,17 @@ ui <- fluidPage(
 
           tags$h5(strong("Figure 1: The true overall effect size is zero.")),
           bslib::card( style = "margin-bottom: 60px;",
-                       plotOutput("BiasPlot1", width = "700px", height = "800px"#) #imageOutput("BiasPlot1",  width = 700, height =800
+                       plotOutput("BiasPlot1", width = "700px", height = "800px"
                 )),
 
           tags$h5(strong("Figure 2: The true overall effect size is half the observed effect size (see Metafor output: Random-effects model).")),
           bslib::card(style = "margin-bottom: 60px;",
-                      plotOutput("BiasPlot2", width = "700px", height = "800px"#) #imageOutput("BiasPlot2",  width = 700,  height =800
+                      plotOutput("BiasPlot2", width = "700px", height = "800px"
                )),
 
           tags$h5(strong("Figure 3: The true overall effect size is the observed effect size (see Metafor output: Random-effects model).")),
           bslib::card(style = "margin-bottom: 60px;",
-                      plotOutput("BiasPlot3", width = "700px", height = "800px"#) #imageOutput("BiasPlot3",  width = 700, height =800
+                      plotOutput("BiasPlot3", width = "700px", height = "800px"
                ))),
 
         bslib::nav_panel(
@@ -136,7 +145,7 @@ ui <- fluidPage(
           tags$h5(strong("Figure 4: Additional Sensitivity Analysis")),
 
           bslib::card(style = "margin-bottom: 60px;",
-                      plotOutput("AddBiasPlot", width = "700px", height = "800px"#imageOutput("AddBiasPlot",  width = 700,  height =800
+                      plotOutput("AddBiasPlot", width = "700px", height = "800px"
                )),
 
           tags$h4(strong("Results Additional Sensitivity Analysis")),
@@ -158,7 +167,7 @@ ui <- fluidPage(
                                verbatimTextOutput("mem")),
                   tags$h4(strong("Bubble Plot")),
                   bslib::card(style = "margin-bottom: 60px;",
-                              plotOutput("RegPlot",  width = 700, height =800 #imageOutput("RegPlot",  width = 700, height =800
+                              plotOutput("RegPlot",  width = 700, height =800
                        )),
                   bslib::card(
                     class = "mb-4",
@@ -175,7 +184,7 @@ ui <- fluidPage(
 
                          tags$h4(strong("Corresponding Paper and R Code")),
                   bslib::card(class = "mb-4",
-                              markdown("For more details on the reasoning and formulas behind this application, please refer to the corresponding paper [here](LINK).
+                              markdown("For more details on the reasoning and formulas behind this application, please refer to the corresponding [paper](https://osf.io/preprints/metaarxiv/nskz5_v1).
                               The R code for this Shiny app and the analyses described in the paper can be found on the
                               [GitHub project page](https://github.com/FranziskaRuffer/PublicationBiasInModeratorAnalysis).
                               On this page, you can also find a guide on how to run
@@ -252,6 +261,15 @@ ui <- fluidPage(
 
 
                   tags$h4(strong("Supported Input")),
+
+                  tags$h5(strong("Data Files")),
+                  bslib::card(class = "mb-4",
+                              markdown("This app supports data uploads as csv, tsv or txt file. Before uploading any data, the meta-analytic data by Lehmann et al. (2018) on the red romance hypothesis is shown.
+                              The data is accessed via the metadat package (Viechtbauer et al., 2025).
+                              In line with the shiny app analysis reported in the [paper](https://osf.io/preprints/metaarxiv/nskz5_v1), only studies with female participants are included, and the publication bias indicator variable 'NoPB' evaluates to 'TRUE' for studies
+                              that were either pre-registered or not published or both. For more information on the specifics on the shown analysis, please refer to the paper." )),
+
+
                   tags$h5(strong("Effect Size Measures")),
                   bslib::card(class = "mb-4",
                               helpText("The current version is restricted to be used for approximately normally distributed effect sizes,
@@ -271,7 +289,9 @@ ui <- fluidPage(
                        bias to those effect sizes for which the indicator is 'FALSE'. For instance, the selection of pre-registered studies for publication could be less or not at all influenced by
                        whether the effect size is statistically significant or not. So, it might make sense to not apply publication bias to those effect sizes from pre-registered studies and
                        to, hence, set the publication bias indicator to 'TRUE' for those effect sizes. Another example is unpublished studies, as they were not selected for publication
-                       in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'TRUE' for these effect sizes."
+                       in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'TRUE' for these effect sizes.
+                       In case you do not select a logical variable ('TRUE'/'FALSE'), assumptions will be made to internally convert the values of this variable to 'TRUE' and 'FALSE' and
+                       a warning message will be shown."
                        )),
 
                   tags$h4(strong("Handling Missing Values")),
@@ -311,14 +331,21 @@ ui <- fluidPage(
                        ),
                        div(
                          class = "hanging-indent",
+                         "Lehmann, G. K., Elliot, A. J., & Calin-Jageman, R. J. (2018). Meta-analysis of the effect of red on perceived attractiveness. Evolutionary psychology, 16(4), 1474704918802412. https://doi.org/10.1177/1474704918802412"
+                       ),
+                       div(
+                         class = "hanging-indent",
                          "Mathur, M. B., & VanderWeele, T. J. (2021). Estimating publication bias in meta-analyses of peer-reviewed studies: A meta-meta-analysis across disciplines and journal tiers. Research Synthesis Methods, 12(2), 176–191. https://doi.org/10.1002/jrsm.1464"
                        ),
                        div(
                          class = "hanging-indent",
                          "Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor package. Journal of Statistical Software, 36(3), 1–48. https://doi.org/10.18637/jss.v036.i03"
+                       ),
+                       div(
+                         class = "hanging-indent",
+                         "Viechtbauer, W., White, T., Noble, D., Senior, A., & Hamilton, W. K. (2025). metadat: Meta-analysis datasets (R package version 1.4-0). https://doi.org/10.32614/CRAN.package.metadat"
                        )
                   )
-                  #)
         )
       )
     )
