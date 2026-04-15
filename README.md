@@ -2,7 +2,7 @@
 
 This project contains the R code, Figures, Shiny App and data analyses described in the accompanying 
 paper on the "Effects of Publication Bias on Moderator Effects in Meta-Analysis". You can find the 
-paper [here]().
+paper [here](https://osf.io/preprints/metaarxiv/nskz5_v1).
 
 ## 🚀 Run the Shiny App
 ### Option 1: Open the hosted app (no R required)
