@@ -8,7 +8,7 @@ paper [here]().
 ### Option 1: Open the hosted app (no R required)
 
 The app is also deployed on [shinyapps.io](https://www.shinyapps.io/?utm_source=chatgpt.com).
-👉 Click [here](https://franziskaruffer.shinyapps.io/shiny/) to launch the app.
+👉 Click [here](https://franziskaruffer.shinyapps.io/PublicationBiasInModeratorAnalysis/) to launch the app.
 
 
 ### Option 2: Run directly from GitHub (requires R)
