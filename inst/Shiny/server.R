@@ -1,8 +1,9 @@
 library(PublicationBiasInModeratorAnalysis)
 server <- function(input, output, session){
 
+  # check whether no data was uploaded -> default data: Lehmann et al. (2018)
   isDefaultData <- reactive({
-    is.null(input$file_upload)  # or however you detect uploads
+    is.null(input$upload) || is.null(input$upload$datapath)
   })
 
   data <- reactive({
@@ -18,6 +19,8 @@ server <- function(input, output, session){
       dat$NoPB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", TRUE, FALSE)
 
     } else {
+      # whenever data is uploaded, check which file type and separators are used
+      # and read in data correctly
 
       first_line <- readLines(input$upload$datapath, n = 1)
 
@@ -29,98 +32,132 @@ server <- function(input, output, session){
         ","
       }
 
-      dat <- tryCatch(
-        readr::read_csv(input$upload$datapath, show_col_types = FALSE),
-        error = function(e) NULL
-      )
+      dat <- tryCatch({
 
-      if (is.null(dat) || ncol(dat) == 1) {
+        if (sep == ";") {
+          readr::read_delim(
+            file = input$upload$datapath,
+            delim = ";",
+            locale = readr::locale(decimal_mark = ","),
+            show_col_types = FALSE
+          )
+        } else {
+          readr::read_delim(
+            file = input$upload$datapath,
+            delim = sep,
+            locale = readr::locale(decimal_mark = "."),
+            show_col_types = FALSE
+          )
+        }
+      }, error = function(e) {
+        showNotification(paste("File read error:", e$message), type = "error")
+        return(data.frame())
+      })
+
+      if (ncol(dat) <= 1) {
         dat <- readr::read_delim(
           input$upload$datapath,
           delim = sep,
-          quote = "\"",
-          escape_double = TRUE,
-          trim_ws = TRUE,
           show_col_types = FALSE
         )
       }
     }
-
     dat
   })
 
   observeEvent(data(), {
 
-    df_cols <- names(data())
+    df <- data()
+    df_cols <- names(df)
+    is_default <- isDefaultData()
 
-    safe_col <- function(i) {
-      if (length(df_cols) >= i) df_cols[i] else df_cols[1]
+    if (is_default) {
+      # for the default analysis (i.e., when launching the app), select the variable as described in the analysis in
+      # the corresponding paper
+      updateSelectInput(session, "yi",
+                        choices = c("", df_cols),
+                        selected = "yi")
+
+      updateSelectInput(session, "vi",
+                        choices = c("", df_cols),
+                        selected = "vi")
+
+      updateSelectInput(session, "sei",
+                        choices = c("", df_cols),
+                        selected = "")
+
+      updateSelectInput(session, "x1",
+                        choices = c("", df_cols),
+                        selected = "Preregistered")
+
+      updateSelectizeInput(session, "NoPB",
+                           choices = c("None" = "", df_cols),
+                           selected = if ("NoPB" %in% df_cols) "NoPB" else "",
+                           server = TRUE)
+
+    } else {
+      # for any uploaded data, select columns in the data as variable (NoPB does not
+      # need to be selected)
+      updateSelectInput(session, "yi",
+                        choices = c("", df_cols),
+                        selected = if (is_default) df_cols[1] else "")
+
+      updateSelectInput(session, "vi",
+                        choices = c("", df_cols),
+                        selected = if (is_default) df_cols[2] else "")
+
+      updateSelectInput(session, "sei",
+                        choices = c("", df_cols),
+                        selected = "")
+
+      updateSelectInput(session, "x1",
+                        choices = c("", df_cols),
+                        selected = if (is_default && "Preregistered" %in% df_cols) "Preregistered" else "")
+
+      updateSelectizeInput(session, "NoPB",
+                           choices = c("None" = "", df_cols),
+                           selected = if (is_default && "NoPB" %in% df_cols) "NoPB" else "",
+                           server = TRUE)
     }
-
-    # Preserve user selection if possible
-    pick <- function(current, preferred, fallback) {
-      if (!is.null(current) && current %in% df_cols) {
-        current
-      } else if (preferred %in% df_cols) {
-        preferred
-      } else {
-        fallback
-      }
-    }
-
-    updateSelectInput(
-      session, "yi",
-      choices = c("", df_cols),
-      selected = pick(input$yi, "yi", safe_col(1))
-    )
-
-    updateSelectInput(
-      session, "vi",
-      choices = c("", df_cols),
-      selected = pick(input$vi, "vi", safe_col(2))
-    )
-
-    updateSelectInput(
-      session, "sei",
-      choices = c("", df_cols),
-      selected = if (!is.null(input$sei) && input$sei %in% df_cols) input$sei else ""
-    )
-
-    updateSelectInput(
-      session, "x1",
-      choices = c("", df_cols),
-      selected = pick(input$x1, "Preregistered", safe_col(3))
-    )
-
-    observe({
-      req(data())
-
-      current_names <- names(data())
-
-      # Determine default selection
-      selected_val <- if ("NoPB" %in% current_names && isDefaultData()) {
-        "NoPB"
-      } else {
-        ""
-      }
-
-      updateSelectizeInput(
-        session,
-        "NoPB",
-        choices = c("None" = "", current_names),
-        selected = selected_val,
-        server = TRUE
-      )
-    })
   })
 
-  PBinfo <- reactive({
-    req(data())
-    cat("Data loaded\n")
+  # check whether all required variables in a new dataset are selected & available
+  analysis_ready <- reactive({
     df <- data()
-    print(readr::problems(df))
 
-    req(input$yi, input$x1)
+    if (is.null(df) || nrow(df) == 0) return(FALSE)
+
+    if (!nzchar(input$yi)) return(FALSE)
+    if (!nzchar(input$x1)) return(FALSE)
+
+    if (!(input$yi %in% names(df))) return(FALSE)
+    if (!(input$x1 %in% names(df))) return(FALSE)
+
+    if (input$vtype == "vi") {
+      if (!nzchar(input$vi)) return(FALSE)
+      if (!(input$vi %in% names(df))) return(FALSE)
+    }
+
+    if (input$vtype == "sei") {
+      if (!nzchar(input$sei)) return(FALSE)
+      if (!(input$sei %in% names(df))) return(FALSE)
+    }
+
+    TRUE
+  })
+
+
+  PBinfo <- reactive({
+
+    # only start calculations after data and variables are selected
+    req(analysis_ready())
+
+    df <- data()
+    # validating that the moderator and effect sizes variable are actually in the dataset
+    validate(
+      need(input$yi %in% names(df), "Invalid yi selection"),
+      need(input$x1 %in% names(df), "Invalid x1 selection")
+    )
 
     # assuring that the effect size variable is numeric
     df$yi <- suppressWarnings(as.numeric(df[[input$yi]]))
@@ -134,10 +171,8 @@ server <- function(input, output, session){
     } else {
       df$x1 <- as.numeric(as.factor(df[[input$x1]]))
     }
-
+    # checking that the sampling variances or SEs are numeric (can be converted to numeric)
     if (input$vtype == "vi"){
-      req(input$vi)
-
       df$vi <- suppressWarnings(as.numeric(df[[input$vi]]))
       validate(
         need(!all(is.na(df$vi)), "Selected sampling variance column is not numeric.")
@@ -146,8 +181,6 @@ server <- function(input, output, session){
         need(is.numeric(df[[input$vi]]), "Please select a column with numeric values for the sampling variance.")
       )
     } else if (input$vtype == "sei"){
-      req(input$sei)
-
       df$sei <- suppressWarnings(as.numeric(df[[input$sei]]))
       validate(
         need(!all(is.na(df$sei)), "Selected standard error column is not numeric.")
@@ -282,7 +315,7 @@ server <- function(input, output, session){
   )
 
   output$download_Fig1 <- downloadHandler(
-    filename = function() {"Bias_Plot1.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot1.png"},
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
@@ -313,7 +346,7 @@ server <- function(input, output, session){
   )
 
   output$download_Fig2<- downloadHandler(
-    filename = function() {"Bias_Plot2.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot2.png"},
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
@@ -344,7 +377,7 @@ server <- function(input, output, session){
   )
 
   output$download_Fig3 <- downloadHandler(
-    filename = function() {"Bias_Plot3.png"},# paste0(tools::file_path_sans_ext(Bias_Plot), ".png"),#"Bias_Plot.png",
+    filename = function() {"Bias_Plot3.png"},
     content = function(file) {
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
