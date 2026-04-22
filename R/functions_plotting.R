@@ -8,7 +8,7 @@
 #' @returns A figure with true effect sizes on the x-axis and publication biased effect sizes on the y-axis.
 #' @export
 p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
-  ggplot(data=data,aes(x=g, y=E, linetype=PB)) +
+  ggplot(data=data,aes(x=g, y=E, linetype=PP)) +
   geom_abline(intercept = 0, slope = 1, color="#9E9E9E", linewidth=0.9)+
   geom_line(linewidth=1.2) +
   geom_line(aes(y = bias, color="Bias"), linewidth=1.2) +
@@ -17,8 +17,8 @@ p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
          color="",
         title = title) +
   scale_linetype_manual(values = c(1, 2),
-                        labels = c(expression("A:"~PB[a]==0),
-                                   expression("B:"~PB[b]==0.2)),
+                        labels = c(expression("A:"~PP[a]==0),
+                                   expression("B:"~PP[b]==0.2)),
                         name = "Moderator Group") +
   theme(legend.text = element_text(size = axis_text-4),
         legend.key.size = unit(3,"line"),
@@ -62,14 +62,14 @@ p_bias_diff_exp_val <- function(data, title, size_text = 8, axis_text = 23){
 #' @returns Returns a plot with the true effect sizes on the x-axis and the amount of bias in the effect sizes due to publication bias on the y-axis.
 #' @export
 p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23, ymin =-0.01, ymax = 1 ){
-  ggplot2::ggplot(data=data,aes(x=get(x, data), y=get(y, data), linetype=PB)) +
+  ggplot2::ggplot(data=data,aes(x=get(x, data), y=get(y, data), linetype=PP)) +
     geom_line(linewidth=1.2) +
     labs( x = expression(theta[i]) ,
           y= "Bias",
           title = title) +
     scale_linetype_manual(values = 1:5,
                           labels = c("0", "0.05", "0.2", "0.5", "1"),
-                          name = "Proportion of published non-significant studies [PB]") +
+                          name = "Publication probability of non-significant studies [PP]") +
     theme(legend.text = element_text(size = axis_text-4),
           legend.key.size = unit(3,"line"),
           legend.title = element_text(size = axis_text-4),  # Adjust vertical position of legend title
@@ -101,69 +101,139 @@ p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23, ym
 #' @param beta0 true intercept in the meta-analysis
 #' @param beta1 true slope/moderator effect in the meta-analysis
 #' @param mod.title character string with the x-axis label specifying the moderator (default = "Moderator value")
+#' @param heterogeneity indicator whether the figures should be created for four different levels of tau2res or I2res. Possible values are "tau2res" or "I2res".
 #' @param I2res vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))
-#' @param PB vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))
+#' @param tau2res vector with four between study variances (default is tau2res = c(0, 0.01, 0.04, 0.11) based on van Erp et al. (2017))
+#' @param PP vector with four publication probabilities for non-significant studies (PP=c(0, 0.05, 0.2, 0.5, 1))
 #' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @returns  Shiny app final default plot
 #' @export
-PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
-                             I2res=c(0, 0.25, 0.5, 0.75), PB=c(0, 0.05, 0.2, 0.5, 1),
+PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value", heterogeneity = "tau2res",
+                             I2res=c(0, 0.25, 0.5, 0.75), tau2res = c(0, 0.01, 0.04, 0.11), PP=c(0, 0.05, 0.2, 0.5, 1),
                              lower.tail = FALSE){
 
-  exp_given_PB =do.call(rbind, flattenlist(
-    lapply(I2res, function(i2res){
-      lapply(PB, function(pb){
-        lapply(1:nrow(dat), function(i)  {
-          exp_val_MA(PB=pb, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=i2res, x1=mods[i],
-                    x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
-                    lower.tail = lower.tail)
-        } )
-      })
-    } )))
+  if(heterogeneity == "tau2res"){
+    exp_given_PB =do.call(rbind, flattenlist(
+      lapply(tau2res, function(t2res){
+        lapply(PP, function(pp){
+          lapply(1:nrow(dat), function(i)  {
+            exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=t2res, x1=mods[i],
+                       x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                       lower.tail = lower.tail)
+          } )
+        })
+      } )))
 
-  PBbiased_betas <- do.call(rbind, flattenlist(
-    lapply(PB, function(pb){
-      lapply(I2res, function(i2){
-        betas <- betas_PB(subset(exp_given_PB, PB == pb & I2 ==i2))
-        beta_info <- data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
-                                "I2" = i2, "PB" = pb)
-        return(beta_info)
-      })
-    })))
+    PBbiased_betas <- do.call(rbind, flattenlist(
+      lapply(PP, function(pp){
+        lapply(tau2res, function(t2res){
+          betas <- betas_PB(subset(exp_given_PB, PP == pp & tau2 ==t2res))
+          beta_info <- data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                                  "tau2" = t2res, "PP" = pp)
+          return(beta_info)
+        })
+      })))
 
-  PBbiased_betas$PB <- factor(PBbiased_betas$PB)
-  PB_dat <- merge(exp_given_PB,PBbiased_betas,by=c("I2","PB"))
-  exp_given_PB$PB <- factor(exp_given_PB$PB)
-  original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
-                         "I2"=rep(0, nrow(dat)), "PB" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
-                         x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                         ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
-                         E = dat$yi)
-  PB_dat <- rbind(exp_given_PB, original )
-  weights <- 1/(original$vg + original$tau2)
-  rel_weights <- weights/max(weights) * 4 +0.5
+    PBbiased_betas$PP <- factor(PBbiased_betas$PP)
+    PB_dat <- merge(exp_given_PB,PBbiased_betas,by=c("tau2","PP"))
+    exp_given_PB$PP <- factor(exp_given_PB$PP)
+    original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
+                           "I2"=rep(0, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
+                           x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           E = dat$yi)
+    PB_dat <- rbind(exp_given_PB, original )
+    weights <- 1/(original$vg + original$tau2)
+    rel_weights <- weights/max(weights) * 4 +0.5
 
-  #creating the plots
-  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0, "PB" = "original"  )
-  PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==0 ), I20_PBorig_b )
-  p1 <- plot_contmod(data=subset(PB_dat, I2 == 0 & PB == "original"), I2_PB =PB_I2_0, beta1=beta1, beta0 = beta0, I2=0, weights=rel_weights, mod.title = mod.title )
+    #creating the plots
+    tau20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "tau2" = tau2res[1], "PP" = "original"  )
+    PB_dat$tau2[which(PB_dat$PP =="original")] <- tau2res[1]
+    PB_tau2_1 <-  rbind(subset(PBbiased_betas, tau2 == tau2res[1] ), tau20_PBorig_b )
+    p1 <- plot_contmod(data=subset(PB_dat, tau2 ==  tau2res[1] & PP == "original"), I2_PB =PB_tau2_1, beta1=beta1, beta0 = beta0,
+                       tau2= tau2res[1], weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity )
 
-  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.25, "PB" = "original"  )
-  PB_dat$I2[which(PB_dat$PB =="original")] <- 0.25
-  PB_I2_25 <-  rbind(subset(PBbiased_betas, I2 ==0.25), I20_PBorig_b )
-  p2 <- plot_contmod(data=subset(PB_dat, I2 == 0.25 & PB == "original"), I2_PB =PB_I2_25, beta1=beta1, beta0 = beta0, I2=0.25, weights=rel_weights, mod.title = mod.title  )
+    tau20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "tau2" = tau2res[2], "PP" = "original"  )
+    PB_dat$tau2[which(PB_dat$PP =="original")] <- tau2res[2]
+    PB_tau2_2 <-  rbind(subset(PBbiased_betas, tau2 ==tau2res[2]), tau20_PBorig_b )
+    p2 <- plot_contmod(data=subset(PB_dat, tau2 == tau2res[2] & PP == "original"), I2_PB =PB_tau2_2, beta1=beta1, beta0 = beta0,
+                       tau2=tau2res[2], weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity )
 
-  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.5, "PB" = "original"  )
-  PB_dat$I2[which(PB_dat$PB =="original")] <- 0.5
-  PB_I2_50 <-  rbind(subset(PBbiased_betas, I2 ==0.5), I20_PBorig_b )
-  p3 <- plot_contmod(data=subset(PB_dat, I2 == 0.5 & PB == "original"), I2_PB =PB_I2_50, beta1=beta1, beta0 = beta0, I2=0.5, weights=rel_weights, mod.title = mod.title  )
+    tau20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "tau2" = tau2res[3], "PP" = "original"  )
+    PB_dat$tau2[which(PB_dat$PP =="original")] <- tau2res[3]
+    PB_tau2_3<-  rbind(subset(PBbiased_betas, tau2 ==tau2res[3]), tau20_PBorig_b)
+    p3 <- plot_contmod(data=subset(PB_dat, tau2 == tau2res[3] & PP == "original"), I2_PB =PB_tau2_3, beta1=beta1, beta0 = beta0,
+                       tau2=tau2res[3], weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity  )
 
 
-  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.75, "PB" = "original"  )
-  PB_dat$I2[which(PB_dat$PB =="original")] <- 0.75
-  PB_I2_75 <-  rbind(subset(PBbiased_betas, I2 ==0.75), I20_PBorig_b )
-  p4 <- plot_contmod(data=subset(PB_dat, I2 == 0.75 & PB == "original"), I2_PB =PB_I2_75, beta1=beta1, beta0 = beta0, I2=0.75, weights=rel_weights, mod.title = mod.title  )
+    tau20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "tau2" = tau2res[4], "PP" = "original"  )
+    PB_dat$tau2[which(PB_dat$PP =="original")] <- tau2res[4]
+    PB_tau2_4 <-  rbind(subset(PBbiased_betas, tau2 ==tau2res[4]), tau20_PBorig_b )
+    p4 <- plot_contmod(data=subset(PB_dat, tau2 == tau2res[4] & PP == "original"), I2_PB =PB_tau2_4, beta1=beta1, beta0 = beta0,
+                       tau2=tau2res[4], weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity  )
 
+  } else if (heterogeneity == "I2res") {
+    exp_given_PB =do.call(rbind, flattenlist(
+      lapply(I2res, function(i2res){
+        lapply(PP, function(pp){
+          lapply(1:nrow(dat), function(i)  {
+            exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=i2res, x1=mods[i],
+                       x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                       lower.tail = lower.tail)
+          } )
+        })
+      } )))
+
+    PBbiased_betas <- do.call(rbind, flattenlist(
+      lapply(PP, function(pp){
+        lapply(I2res, function(i2res){
+          betas <- betas_PB(subset(exp_given_PB, PP == pp & I2 ==i2res))
+          beta_info <- data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                                  "I2" = i2res, "PP" = pp)
+          return(beta_info)
+        })
+      })))
+
+    PBbiased_betas$PP <- factor(PBbiased_betas$PP)
+    PB_dat <- merge(exp_given_PB,PBbiased_betas,by=c("I2","PP"))
+    exp_given_PB$PP <- factor(exp_given_PB$PP)
+    original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
+                           "I2"=rep(0, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
+                           x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           E = dat$yi)
+    PB_dat <- rbind(exp_given_PB, original )
+    weights <- 1/(original$vg + original$tau2)
+    rel_weights <- weights/max(weights) * 4 +0.5
+
+    #creating the plots
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0, "PP" = "original"  )
+    PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==0 ), I20_PBorig_b )
+    p1 <- plot_contmod(data=subset(PB_dat, I2 == 0 & PP == "original"), I2_PB =PB_I2_0, beta1=beta1, beta0 = beta0,
+                       I2=0, weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity )
+
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.25, "PP" = "original"  )
+    PB_dat$I2[which(PB_dat$PP =="original")] <- 0.25
+    PB_I2_25 <-  rbind(subset(PBbiased_betas, I2 ==0.25), I20_PBorig_b )
+    p2 <- plot_contmod(data=subset(PB_dat, I2 == 0.25 & PP == "original"), I2_PB =PB_I2_25, beta1=beta1, beta0 = beta0,
+                       I2=0.25, weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity  )
+
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.5, "PP" = "original"  )
+    PB_dat$I2[which(PB_dat$PP =="original")] <- 0.5
+    PB_I2_50 <-  rbind(subset(PBbiased_betas, I2 ==0.5), I20_PBorig_b )
+    p3 <- plot_contmod(data=subset(PB_dat, I2 == 0.5 & PP == "original"), I2_PB =PB_I2_50, beta1=beta1, beta0 = beta0,
+                       I2=0.5, weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity  )
+
+
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = 0.75, "PP" = "original"  )
+    PB_dat$I2[which(PB_dat$PP =="original")] <- 0.75
+    PB_I2_75 <-  rbind(subset(PBbiased_betas, I2 ==0.75), I20_PBorig_b )
+    p4 <- plot_contmod(data=subset(PB_dat, I2 == 0.75 & PP == "original"), I2_PB =PB_I2_75, beta1=beta1, beta0 = beta0,
+                       I2=0.75, weights=rel_weights, mod.title = mod.title, heterogeneity = heterogeneity  )
+
+  } else {
+    stop("Please specify either `tau2res` or `I2res` to be used for generating the heterogeneity in the scenarios displayed in the figures.")
+  }
 
   p5 <- plot_grid_1legend(p1, p3, p2, p4)
   return(p5)
@@ -177,17 +247,23 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
 #' @param beta1 true slope/moderator effect in the meta-analysis
 #' @param mod.title character string with the x-axis label specifying the moderator (default = "Moderator value")
 #' @param I2 single value between 0 and 1 specifying the level of residual I2
-#' @param PB single value between 0 and 1 specifyin the publication bias
+#' @param PP single value between 0 and 1 specifying the publication probability for non-significant studies
 #' @returns additional Shiny app plot
 #' @export
-Plot_additional_analysis <- function(data, beta0, beta1, I2, PB, mem, betasPB, mod.title = "Moderator value"){
+Plot_additional_analysis <- function(data, beta0, beta1, heterogeneity, tau2, I2, PP, mem, betasPB, mod.title = "Moderator value"){
 
   weights <- 1/(data$vi + mem$tau2)
   rel.weights <- weights/max(weights) * 4 +0.5
 
-  title <- substitute(beta[0] == val1 * "," ~ beta[1]==val2 * "," ~ PB == val3 ~ "and" ~ I^2 == val4 * "%",
-                      list(val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = PB,  val4 = I2*100))
-  p<-ggplot2::ggplot(data = data, aes(x = x1, y = yi,   shape = NoPB)) +
+  if(heterogeneity == "tau2res"){
+    title <- substitute(beta[0] == val1 * "," ~ beta[1]==val2 * "," ~ PP == val3 ~ "and" ~ tau^2 == val4,
+                        list(val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = PP,  val4 = tau2))
+  } else{
+    title <- substitute(beta[0] == val1 * "," ~ beta[1]==val2 * "," ~ PP == val3 ~ "and" ~ I^2 == val4 * "%",
+                        list(val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = PP,  val4 = I2*100))
+
+  }
+    p<-ggplot2::ggplot(data = data, aes(x = x1, y = yi,   shape = NoPB)) +
     geom_point(size = rel.weights, alpha = 0.5) +
     ggtitle(title) +
     labs(x =mod.title,
@@ -224,43 +300,53 @@ Plot_additional_analysis <- function(data, beta0, beta1, I2, PB, mem, betasPB, m
 }
 
 #' @noRd
-plot_contmod <- function(data, I2_PB,  beta0, beta1, I2, weights, mod.title = "Moderator value", ind = NA){
-  if(is.na(ind) == TRUE){
-    ind <- ifelse(I2 == 0, "a", ifelse(I2 ==0.25, "b", ifelse(I2 ==0.5, "c", "d")))
-  }
+plot_contmod <- function(data, I2_PB,  beta0, beta1, heterogeneity, I2, tau2,  weights, mod.title = "Moderator value", ind = NA){
 
-  title <- substitute(bolditalic(val0) * ":"~beta[0] == val1 * "," ~ beta[1]==val2 * "," ~  "and" ~ I^2 == val3 * "%",
-                      list(val0 = ind, val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = I2*100))
+  if(heterogeneity=="tau2res"){
+    if(is.na(ind) == TRUE){
+      ind <- ifelse(tau2 == 0, "a", ifelse(tau2 ==0.01, "b", ifelse(tau2 ==0.04, "c", "d")))
+    }
+
+    title <- substitute(bolditalic(val0) * ":"~beta[0] == val1 * "," ~ beta[1]==val2 * "," ~  "and" ~ tau^2 == val3,
+                        list(val0 = ind, val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = tau2))
+  } else {
+    if(is.na(ind) == TRUE){
+      ind <- ifelse(I2 == 0, "a", ifelse(I2 ==0.25, "b", ifelse(I2 ==0.5, "c", "d")))
+    }
+
+    title <- substitute(bolditalic(val0) * ":"~beta[0] == val1 * "," ~ beta[1]==val2 * "," ~  "and" ~ I^2 == val3 * "%",
+                        list(val0 = ind, val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = I2*100))
+  }
 
   p<-ggplot2::ggplot(data = data, aes(x = x1, y = E,   shape = NoPB)) +
     geom_point(size = weights, alpha = 0.5) +
     ggtitle(title) +
     labs(x =mod.title,
          y = "Effect Sizes") +
-    #geom_abline(data = subset(PBbiased_betas, I2 ==0.5), aes(slope = beta1PB, intercept = beta0PB, colour = PB)) +
-    geom_abline(aes(slope = I2_PB$beta1PB[1], intercept = I2_PB$beta0PB[1], colour = I2_PB$PB[1], linetype=I2_PB$PB[1]),linewidth=0.75, show.legend = TRUE) +
-    geom_abline(aes(slope = I2_PB$beta1PB[2], intercept = I2_PB$beta0PB[2], colour = I2_PB$PB[2], linetype=I2_PB$PB[2]),linewidth=0.75, show.legend = TRUE) +
-    geom_abline(aes(slope = I2_PB$beta1PB[3], intercept = I2_PB$beta0PB[3], colour = I2_PB$PB[3], linetype=I2_PB$PB[3]),linewidth=0.75, show.legend = TRUE) +
-    geom_abline(aes(slope = I2_PB$beta1PB[4], intercept = I2_PB$beta0PB[4], colour = I2_PB$PB[4], linetype=I2_PB$PB[4]),linewidth=0.75, show.legend = TRUE) +
-    geom_abline(aes(slope = beta1, intercept = beta0, colour = I2_PB$PB[5],  linetype=I2_PB$PB[5]),linewidth=0.75, show.legend = TRUE) +
-    geom_abline(aes(slope = I2_PB$beta1PB[6], intercept = I2_PB$beta0PB[6], colour = I2_PB$PB[6], linetype=I2_PB$PB[6]), linewidth=0.75,show.legend = TRUE) +
+    #geom_abline(data = subset(PBbiased_betas, I2 ==0.5), aes(slope = beta1PB, intercept = beta0PB, colour = PP)) +
+    geom_abline(aes(slope = I2_PB$beta1PB[1], intercept = I2_PB$beta0PB[1], colour = I2_PB$PP[1], linetype=I2_PB$PP[1]),linewidth=0.75, show.legend = TRUE) +
+    geom_abline(aes(slope = I2_PB$beta1PB[2], intercept = I2_PB$beta0PB[2], colour = I2_PB$PP[2], linetype=I2_PB$PP[2]),linewidth=0.75, show.legend = TRUE) +
+    geom_abline(aes(slope = I2_PB$beta1PB[3], intercept = I2_PB$beta0PB[3], colour = I2_PB$PP[3], linetype=I2_PB$PP[3]),linewidth=0.75, show.legend = TRUE) +
+    geom_abline(aes(slope = I2_PB$beta1PB[4], intercept = I2_PB$beta0PB[4], colour = I2_PB$PP[4], linetype=I2_PB$PP[4]),linewidth=0.75, show.legend = TRUE) +
+    geom_abline(aes(slope = beta1, intercept = beta0, colour = I2_PB$PP[5],  linetype=I2_PB$PP[5]),linewidth=0.75, show.legend = TRUE) +
+    geom_abline(aes(slope = I2_PB$beta1PB[6], intercept = I2_PB$beta0PB[6], colour = I2_PB$PP[6], linetype=I2_PB$PP[6]), linewidth=0.75,show.legend = TRUE) +
 
     scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 17),
                        name = "No Publication Bias") +
     # Manual color scale for PB
     scale_color_manual(
       values = c("0" = "red", "0.05" = "#E66100", "0.2" = "#006CD1", "0.5" = "#5D3A9B", "1" = "darkgray", "original" = "black"),
-      name = "Publication Bias"
+      name = "Publication probability of non-significant studies"
     ) +
     scale_linetype_manual(
       values = c("0" = "dotted", "0.05" = "longdash", "0.2" = "dotdash", "0.5" = "dashed", "1" = "twodash", "original" = "solid"),
-      name = "Publication Bias"
+      name = "Publication probability of non-significant studies"
     ) +
     # Remove the line from the shape legend
     guides(shape = guide_legend(override.aes = list(linetype = 0, size = 1.5))) +# Set linetype = 0 (no line), size = 4 (adjust point size)
     guides(
-      colour = guide_legend("Publication Bias",  title.position = "top" ),
-      linetype = guide_legend("Publication Bias", title.position = "top", override.aes = list(linewidth = 0.75) ),
+      colour = guide_legend("Publication probability of non-significant studies",  title.position = "top" ),
+      linetype = guide_legend("Publication probability of non-significant studies", title.position = "top", override.aes = list(linewidth = 0.75) ),
       shape = guide_legend(title = "No Publication Bias", title.position = "top", override.aes = list(linetype = 0,  size = 2))
     ) +
     theme(legend.position = "bottom")
@@ -338,41 +424,73 @@ plot_grid_1legend_6 <- function(p1, p2, p3, p4, p5, p6){
 #'Individual Plots shiny app
 #' @noRd
 individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value",
-                             I2res, PB=c(0, 0.05, 0.2, 0.5, 1), ind, lower.tail = FALSE){
+                             heterogeneity, I2res=NA, tau2res=NA, PP=c(0, 0.05, 0.2, 0.5, 1), ind,
+                             lower.tail = FALSE){
 
   exp_given_PB =do.call(rbind, flattenlist(
-    lapply(PB, function(pb) {
+    lapply(PP, function(pp) {
       lapply(1:nrow(dat), function(i)  {
-        exp_val_MA(PB=pb, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2res, x1=mods[i],
+        exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2res, tau2 =tau2res, x1=mods[i],
                    x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
                    lower.tail = lower.tail)
       } )})))
 
-  PBbiased_betas <-do.call(rbind, flattenlist(
-    lapply(PB, function(pb) {
-      betas <- betas_PB(subset(exp_given_PB, PB == pb & I2 ==I2res))
-      beta_info <-  data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
-                               "I2" = I2res, "PB" = pb)
-      return(beta_info)
-    })))
+  if(heterogeneity =="tau2res"){
+
+    PBbiased_betas <-do.call(rbind, flattenlist(
+      lapply(PP, function(pp) {
+        betas <- betas_PB(subset(exp_given_PB, PP == pp & tau2 ==tau2res))
+        beta_info <-  data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                                 "tau2" = tau2res, "PP" = pp)
+        return(beta_info)
+      })))
 
 
-  PBbiased_betas$PB <- factor(PBbiased_betas$PB)
-  PB_dat <- merge(exp_given_PB, PBbiased_betas,by=c("I2","PB"))
-  exp_given_PB$PB <- factor(exp_given_PB$PB)
-  original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
-                         "I2"=rep(mem$I2, nrow(dat)), "PB" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
-                         x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                         ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
-                         E = dat$yi)
-  PB_dat <- rbind(exp_given_PB, original )
-  weights <- 1/(original$vg + original$tau2)
-  rel_weights <- weights/max(weights) * 4 +0.5
+    PBbiased_betas$PP <- factor(PBbiased_betas$PP)
+    PB_dat <- merge(exp_given_PB, PBbiased_betas,by=c("tau2","PP"))
+    exp_given_PB$PP <- factor(exp_given_PB$PP)
+    original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
+                           "I2"=rep(mem$I2, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
+                           x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           E = dat$yi)
+    PB_dat <- rbind(exp_given_PB, original )
+    weights <- 1/(original$vg + original$tau2)
+    rel_weights <- weights/max(weights) * 4 +0.5
 
-  #creating the plots
-  I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = I2res, "PB" = "original"  )
-  PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==I2res ), I20_PBorig_b )
-  p1 <- plot_contmod(data =subset(PB_dat, PB == "original"), I2_PB=PB_I2_0,  beta0=beta0, beta1=beta1,
-                     I2=I2res, weights=rel_weights, mod.title = mod.title, ind )
+    #creating the plots
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "tau2" = tau2res, "PP" = "original"  )
+    PB_I2_0 <-  rbind(subset(PBbiased_betas, tau2 ==tau2res ), I20_PBorig_b )
+
+  }else{
+
+    PBbiased_betas <-do.call(rbind, flattenlist(
+      lapply(PP, function(pp) {
+        betas <- betas_PB(subset(exp_given_PB, PP == pp & I2 ==I2res))
+        beta_info <-  data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                                 "I2" = I2res, "PP" = pp)
+        return(beta_info)
+      })))
+
+
+    PBbiased_betas$PP <- factor(PBbiased_betas$PP)
+    PB_dat <- merge(exp_given_PB, PBbiased_betas,by=c("I2","PP"))
+    exp_given_PB$PP <- factor(exp_given_PB$PP)
+    original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
+                           "I2"=rep(mem$I2, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
+                           x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           E = dat$yi)
+    PB_dat <- rbind(exp_given_PB, original )
+    weights <- 1/(original$vg + original$tau2)
+    rel_weights <- weights/max(weights) * 4 +0.5
+
+    #creating the plots
+    I20_PBorig_b <- data.frame("beta0PB" =mem$beta[1], "beta1PB" =mem$beta[2], "I2" = I2res, "PP" = "original"  )
+    PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==I2res ), I20_PBorig_b )
+  }
+
+  p1 <- plot_contmod(data =subset(PB_dat, PP == "original"), I2_PB=PB_I2_0,  beta0=beta0, beta1=beta1,
+                     I2=I2res, tau2 = tau2res, weights=rel_weights, mod.title = mod.title, ind )
   return(p1)
 }

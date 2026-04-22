@@ -257,8 +257,14 @@ server <- function(input, output, session){
 
     #default values
     beta1 = 0
-    I2res = c(0, 0.25, 0.5, 0.75)
-    PB = c(0, 0.05, 0.2, 0.5, 1)
+    if (input$heterogeneity == "tau2res"){
+      tau2res = c(0, 0.01, 0.04, 0.11) # based on van Erp et al. (2017): see paper/tau2_choice.Rmd
+      I2res = NA
+    } else {
+      I2res = c(0, 0.25, 0.5, 0.75)
+      tau2res = NA
+    }
+    PP = c(0, 0.05, 0.2, 0.5, 1)
     Zcv <- qnorm(0.025, lower.tail=as.logical(input$lower.tail))
 
 
@@ -268,34 +274,44 @@ server <- function(input, output, session){
         need(is.numeric(input$beta0.spec), "The specified value for beta0 is not numeric."),
         need(!is.null(input$beta1.spec), "Please specify a numerical value for beta1."),
         need(is.numeric(input$beta1.spec), "The specified value for beta1 is not numeric."),
-        need(!is.null(input$I2.spec), "Please specify a numerical value for I2res between 0 and 1."),
-        need(is.numeric(input$I2.spec), "The specified value for I2res is not numeric."),
-        need(input$I2.spec >= 0 & input$I2.spec <100, "The specified value for I2res is outside the possible range: [0, 100)."),
-        need(!is.null(input$PB.spec), "Please specify a numerical value for PB between 0 and 1."),
-        need(is.numeric(input$PB.spec), "The specified value for PBis not numeric."),
-        need(input$PB.spec >= 0 & input$PB.spec <=1, "The specified value for PB is outside the possible range: [0, 1].")
+        need(!is.null(input$PP.spec), "Please specify a numerical value for the publication probability PP between 0 and 1."),
+        need(is.numeric(input$PP.spec), "The specified value for the publication probability PP is not numeric."),
+        need(input$PP.spec >= 0 & input$PP.spec <=1, "The specified value for PP is outside the possible range: [0, 1].")
       )
+      if (input$heterogeneity == "tau2res"){
+        validate(
+          need(!is.null(input$tau2.spec), "Please specify a numerical value for tau2res larger than 0 and smaller than 10."),
+          need(is.numeric(input$tau2.spec), "The specified value for tau2res is not numeric."))
+        tau2res.spec = input$tau2.spec
+        I2res.spec = NA
+      } else{
+        validate(
+          need(!is.null(input$I2.spec), "Please specify a numerical value for I2res between 0 and 1."),
+          need(is.numeric(input$I2.spec), "The specified value for I2res is not numeric."))
+        I2res.spec = input$I2.spec/100
+        tau2res.spec = NA
+      }
       beta0.spec = input$beta0.spec
       beta1.spec = input$beta1.spec
-      I2res.spec = input$I2.spec/100
-      PB.spec = input$PB.spec
-      PBbetas = PublicationBiasInModeratorAnalysis::PB_betas(dat = df, beta0 = beta0.spec,
-                         beta1=beta1.spec, PB.spec,
-                         I2=I2res.spec, mods= df$x1, Zcv = Zcv, lower.tail = as.logical(input$lower.tail))
+      PP.spec = input$PP.spec
+      PBbetas = PB_betas(dat = df, beta0 = beta0.spec, #PublicationBiasInModeratorAnalysis::
+                         beta1=beta1.spec, PP.spec,
+                         I2 = I2res.spec, tau2 = tau2res.spec, mods= df$x1, Zcv = Zcv,
+                         lower.tail = as.logical(input$lower.tail))
       tab_betas <- matrix(c(round(rem$beta, 4), "-", round(mem$beta[1], 4), round(mem$beta[2], 4),
                             round(PBbetas[1,1], 4), round(PBbetas[2,1], 4)),  byrow = T, nrow=3,
                           dimnames= list(  c("REM", "MEM", "PB Sensitivity"),
                                            c("beta0","beta1")
                           ))
       return(list("data" = df, "rem" = rem, "mem" = mem, "beta1" = beta1,
-                  "I2res" = I2res, "PB" = PB,  "Zcv" = Zcv,  "beta0.spec" =  beta0.spec,
-                  "beta1.spec" = beta1.spec, "I2res.spec" = I2res.spec,
-                  "PB.spec" = PB.spec, "PBbetas" = PBbetas, "tab_betas" = tab_betas
+                  "I2res" = I2res, "tau2res" = tau2res, "PP" = PP,  "Zcv" = Zcv,  "beta0.spec" =  beta0.spec,
+                  "beta1.spec" = beta1.spec, "I2res.spec" = I2res.spec, "tau2res.spec" = tau2res.spec,
+                  "PP.spec" = PP.spec, "PBbetas" = PBbetas, "tab_betas" = tab_betas
       ))
     }
 
     return(list("data" = df, "rem" = rem, "mem" = mem, "beta1" = beta1, "I2res" = I2res,
-                "PB" = PB,  "Zcv" = Zcv
+                "tau2res" = tau2res, "PP" = PP,  "Zcv" = Zcv
     ))
   })
 
@@ -307,8 +323,9 @@ server <- function(input, output, session){
       req(PBinfo())
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0,
-                            mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                            I2res = PBinfo()$I2res, tau2res = PBinfo()$tau2res,
+                            beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
                             lower.tail = as.logical(input$lower.tail))
       return(p)
     }
@@ -322,8 +339,9 @@ server <- function(input, output, session){
       }
       ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =0,
-                                                       mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                                                       mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                                                       I2res = PBinfo()$I2res,  tau2res = PBinfo()$tau2res,
+                                                       beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
                                                        lower.tail = as.logical(input$lower.tail)),
              device = device)
     }
@@ -338,8 +356,9 @@ server <- function(input, output, session){
 
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2,
-                            mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                            I2res = PBinfo()$I2res,  tau2res = PBinfo()$tau2res,
+                            beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
                             lower.tail = as.logical(input$lower.tail))
       return(p)
     }
@@ -353,8 +372,9 @@ server <- function(input, output, session){
       }
       ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                                                        mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta)/2,
-                                                       mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                                                       mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                                                       I2res = PBinfo()$I2res,  tau2res = PBinfo()$tau2res,
+                                                       beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
                                                        lower.tail = as.logical(input$lower.tail)),
              device = device)
     }
@@ -369,8 +389,9 @@ server <- function(input, output, session){
       req(PBinfo())
       p <- PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
                             mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
-                            mod.title = paste0("Moderator: ", input$x1) ,
-                            I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
+                            mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                            I2res = PBinfo()$I2res,  tau2res = PBinfo()$tau2res,
+                            beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
                             lower.tail = as.logical(input$lower.tail))
       return(p)
     }
@@ -382,12 +403,14 @@ server <- function(input, output, session){
       device <- function(..., width, height) {
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
-      ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
-                                                       mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
-                                                       mod.title = paste0("Moderator: ", input$x1) ,
-                                                       I2res = PBinfo()$I2res, beta1 = PBinfo()$beta1, PB = PBinfo()$PB,
-                                                       lower.tail = as.logical(input$lower.tail)),
-             device = device)
+
+        ggplot2::ggsave(file, plot = PBanalysis_plots(dat =  PBinfo()$data, mods =  PBinfo()$data$x1,
+                                                      mem = PBinfo()$mem, Zcv = PBinfo()$Zcv, beta0 =as.numeric(PBinfo()$rem$beta),
+                                                      mod.title = paste0("Moderator: ", input$x1), heterogeneity = input$heterogeneity,
+                                                      I2res = PBinfo()$I2res,  tau2res = PBinfo()$tau2res,
+                                                      beta1 = PBinfo()$beta1, PP = PBinfo()$PP,
+                                                      lower.tail = as.logical(input$lower.tail)),
+                        device = device)
     }
   )
 
@@ -400,10 +423,9 @@ server <- function(input, output, session){
       req(input$default == "yes")
       req(PBinfo())
       p <- Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec,
-                                    beta1=PBinfo()$beta1.spec, I2 = PBinfo()$I2res.spec,
-                                    PB = PBinfo()$PB.spec, mem = PBinfo()$mem,
-                                    betasPB = PBinfo()$PBbetas)
-
+                                    beta1=PBinfo()$beta1.spec, heterogeneity = input$heterogeneity,
+                                    I2 = PBinfo()$I2res.spec, tau2 = PBinfo()$tau2res,
+                                    PP = PBinfo()$PP.spec, mem = PBinfo()$mem, betasPB = PBinfo()$PBbetas)
       return(p)
     }
   )
@@ -415,9 +437,9 @@ server <- function(input, output, session){
         grDevices::png(..., width = input$width, height = input$height,  units = "px")
       }
       ggplot2::ggsave(file, plot = Plot_additional_analysis(data = PBinfo()$data, beta0 = PBinfo()$beta0.spec,
-                                                                beta1=PBinfo()$beta1.spec, I2 = PBinfo()$I2res.spec,
-                                                                PB = PBinfo()$PB.spec, mem = PBinfo()$mem,
-                                                                betasPB = PBinfo()$PBbetas),
+                                                                beta1=PBinfo()$beta1.spec, heterogeneity = input$heterogeneity,
+                                                                I2 = PBinfo()$I2res.spec, tau2 = PBinfo()$tau2res,
+                                                                PP = PBinfo()$PP.spec, mem = PBinfo()$mem, betasPB = PBinfo()$PBbetas),
              device = device)
     }
   )

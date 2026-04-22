@@ -24,13 +24,16 @@ N_medium <- 80
 N_large <- 200
 N_vec <- c(N_small, N_medium, N_large)
 
-# publication bias (% of non-significant studies published)
-PB_extreme <- 0
-PB_high <- 0.05
-PB_medium <- 0.2
-PB_low <- 0.5
-PB_no <- 1
-PB_vec <- c(0, 0.05, 0.2, 0.5, 1)
+# publication bias (PP... probability of non-significant studies being published)
+PP_extreme <- 0
+PP_high <- 0.05
+PP_medium <- 0.2
+PP_low <- 0.5
+PP_no <- 1
+PP_vec <- c(0, 0.05, 0.2, 0.5, 1)
+
+# hetergeneity
+tau2.Q3 <- .11
 
 # critical value based on a two-sided test, with focus on upper tail
 Zcv <- qnorm(0.025, lower.tail=F) #critical value
@@ -44,12 +47,12 @@ Zcv <- qnorm(0.025, lower.tail=F) #critical value
 
 ### Figure 1a: N = 40, I2 = 0
 dat_1a <- do.call(rbind,flattenlist(
-  lapply(PB_vec, function(PB)
+  lapply(PP_vec, function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_small, I2 = 0) ) ) ) )
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_small, I2 = 0) ) ) ) )
 
 dat_1a$bias <- dat_1a$E - dat_1a$g
-dat_1a$PB <- factor(dat_1a$PB)
+dat_1a$PP <- factor(dat_1a$PP)
 
 p1a <- p_bias_exp_val(data=dat_1a, x="g", y="bias",
                       title= expression(bolditalic(a)*": "*N==40*","~tau^2==0*","~I^2==0*"%"))
@@ -58,11 +61,11 @@ p1a <- p_bias_exp_val(data=dat_1a, x="g", y="bias",
 ### Figure 1b: N = 200, tau2 = I2 = 0
 # create the data for Figure 1b
 dat_1b <- do.call(rbind,flattenlist(
-  lapply(PB_vec, function(PB)
+  lapply(PP_vec, function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_large, I2 = 0) ) ) ) )
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_large, I2 = 0) ) ) ) )
 dat_1b$bias <- dat_1b$E - dat_1b$g
-dat_1b$PB <- factor(dat_1b$PB)
+dat_1b$PP <- factor(dat_1b$PP)
 
 # make Figure 1b
 p1b <- p_bias_exp_val(data=dat_1b,  x="g", y="bias",
@@ -71,117 +74,119 @@ p1b <- p_bias_exp_val(data=dat_1b,  x="g", y="bias",
 # Additional example calculations discussed in the text
 # if theta = 0.1, then the expected moderator effect is (PB=0):
 # group A: g = 0
-subset(dat_1b, PB ==0 & g ==0) #PB = 0, then E = 0.311
-round(subset(dat_1b, PB ==0 & g ==0)$E, 3) #E = 0.331
-round(subset(dat_1b, PB ==0 & g ==0)$bias, 3) # bias = 0.331
+subset(dat_1b, PP ==0 & g ==0) #PP = 0, then E = 0.311
+round(subset(dat_1b, PP ==0 & g ==0)$E, 3) #E = 0.331
+round(subset(dat_1b, PP ==0 & g ==0)$bias, 3) # bias = 0.331
 #group B: g = 0.1
-subset(dat_1b, PB ==0 & g ==0.1) #PB = 0, then E = 0.345
-round(subset(dat_1b, PB ==0 & g ==0.1)$E, 3) #E = 0.345
-round(subset(dat_1b, PB ==0 & g ==0.1)$bias, 3) # bias = 0.245
+subset(dat_1b, PP ==0 & g ==0.1) #PP = 0, then E = 0.345
+round(subset(dat_1b, PP ==0 & g ==0.1)$E, 3) #E = 0.345
+round(subset(dat_1b, PP ==0 & g ==0.1)$bias, 3) # bias = 0.245
 #moderator effect
-round(subset(dat_1b, PB ==0 & g ==0.1)$E, 3) - round(subset(dat_1b, PB ==0 & g ==0)$E, 3) #moderator effect = .014
-round(subset(dat_1b, PB ==0 & g ==0.1)$E, 3) - round(subset(dat_1b, PB ==0 & g ==0)$E, 3) -0.1 #bias in moderator effect = -.086
+round(subset(dat_1b, PP ==0 & g ==0.1)$E, 3) - round(subset(dat_1b, PP ==0 & g ==0)$E, 3) #moderator effect = .014
+round(subset(dat_1b, PP ==0 & g ==0.1)$E, 3) - round(subset(dat_1b, PP ==0 & g ==0)$E, 3) -0.1 #bias in moderator effect = -.086
 
 #maximum bias when PB =0.05, N = 200,  I2 = 0 at a true effect size of
-PB05N200_I2_0 <- subset(dat_1b, PB ==0.05)
+PB05N200_I2_0 <- subset(dat_1b, PP ==0.05)
 PB05N200_I2_0[which(PB05N200_I2_0$bias== max(PB05N200_I2_0$bias)),]$g #g=0.114
-#if theta = 0.1, then the expected moderator effect is (PB=0.05):
+#if theta = 0.1, then the expected moderator effect is (PP=0.05):
 # group A: g = 0
-subset(dat_1b, PB ==0.05 & g ==0) #PB = 0, then E = 0.107
-round(subset(dat_1b, PB ==0.05 & g ==0)$E, 3) #E = 0.107
-round(subset(dat_1b, PB ==0.05 & g ==0)$bias, 3) # bias = 0.107
+subset(dat_1b, PP ==0.05 & g ==0) #PP = .05, then E = 0.107
+round(subset(dat_1b, PP ==0.05 & g ==0)$E, 3) #E = 0.107
+round(subset(dat_1b, PP ==0.05 & g ==0)$bias, 3) # bias = 0.107
 #group B: g = 0.1
-subset(dat_1b, PB ==0.05 & g ==0.1) #PB = 0, then E = 0.263
-round(subset(dat_1b, PB ==0.05 & g ==0.1)$E, 3) #E = 0.263
-round(subset(dat_1b, PB ==0.05 & g ==0.1)$bias, 3) # bias = 0.163
+subset(dat_1b, PP ==0.05 & g ==0.1) #PP = 0.05, then E = 0.263
+round(subset(dat_1b, PP ==0.05 & g ==0.1)$E, 3) #E = 0.263
+round(subset(dat_1b, PP ==0.05 & g ==0.1)$bias, 3) # bias = 0.163
 #moderator effect
-round(subset(dat_1b, PB ==0.05 & g ==0.1)$E, 3) - round(subset(dat_1b, PB ==0.05 & g ==0)$E, 3) #mod effect = 0.156
-round(subset(dat_1b, PB ==0.05 & g ==0.1)$E, 3) - round(subset(dat_1b, PB ==0.05 & g ==0)$E, 3) -0.1 #bias in moderator effect: 0.056
+round(subset(dat_1b, PP ==0.05 & g ==0.1)$E, 3) - round(subset(dat_1b, PP ==0.05 & g ==0)$E, 3) #mod effect = 0.156
+round(subset(dat_1b, PP ==0.05 & g ==0.1)$E, 3) - round(subset(dat_1b, PP ==0.05 & g ==0)$E, 3) -0.1 #bias in moderator effect: 0.056
 
 
-### Figure 1c: N = 40, I2 = 75%
+### Figure 1c: N = 40, tau2 = .11 (I2 =75%)
 # create the data for Figure 1b
 dat_1c <- do.call(rbind,flattenlist(
-  lapply(PB_vec, function(PB)
+  lapply(PP_vec, function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_small, I2 = 0.75) ) ) ) )
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_small, tau2 = tau2.Q3) ) ) ) )
 
-# obtain the mean tau2 from this set
-meantau2 <- mean(dat_1c$tau2)
+# obtain the I2 from this set
+dat1c.I2 <- round(0.11/(0.11 + PublicationBiasInModeratorAnalysis:::typ_v(dat_1c$vg))*100,2)
+mean(dat_1c$I2)
 
-# create the data again for Figure 1b using the mean tau2
-dat_1c <- do.call(rbind,flattenlist(
-  lapply(PB_vec, function(PB)
-    lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_small, tau2 = meantau2) ) ) ) )
-mean(dat_1c$I2)  #mean I2 is indeed 75% now
+# # create the data again for Figure 1b using the mean tau2
+# dat_1c <- do.call(rbind,flattenlist(
+#   lapply(PP_vec, function(PP)
+#     lapply( seq(0,0.8,0.001), function(g)
+#       exp_val(PP=PP, Zcv=Zcv, g=g, N=N_small, tau2 = meantau2) ) ) ) )
+# mean(dat_1c$I2)  #mean I2 is indeed 75% now
 
 # calculate the bias in each effect size
 dat_1c$bias <- dat_1c$E - dat_1c$g
-dat_1c$PB <- factor(dat_1c$PB)
+dat_1c$PP <- factor(dat_1c$PP)
 
 # make Figure 1c
 p1c <- p_bias_exp_val(data=dat_1c,  x="g", y="bias",
-                      title= expression(bolditalic(c)*": "*N==40*","~tau^2==0.313*","~I^2==75*"%"))
+                      title= expression(bolditalic(c)*": "*N==40*","~tau^2==0.11*","~I^2==51*"%"))
 
 
-### Figure 1d: N = 200, tau2 = meantau2 = .313
+### Figure 1d: N = 200, tau2 = .11
 dat_1d <- do.call(rbind,flattenlist(
-  lapply(PB_vec, function(PB)
+  lapply(PP_vec, function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_large, tau2 = meantau2) ) ) ) )
-round(mean(dat_1d$I2)*100,2) #93.8%
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_large, tau2 = tau2.Q3) ) ) ) )
+round(mean(dat_1d$I2)*100,2) #84%
+round(tau2.Q3/(tau2.Q3 + PublicationBiasInModeratorAnalysis:::typ_v(dat_1d$vg))*100,2)
 
 # calculate the bias in each effect size
 dat_1d$bias <- dat_1d$E - dat_1d$g
-dat_1d$PB <- factor(dat_1d$PB)
+dat_1d$PP <- factor(dat_1d$PP)
 
 # make Figure 1d
 p1d <- p_bias_exp_val(data=dat_1d, x="g", y="bias",
-                      title= expression(bolditalic(d)*": "*N==200*","~tau^2==0.313*","~I^2==93.8*"%"))
+                      title= expression(bolditalic(d)*": "*N==200*","~tau^2==0.11*","~I^2==84*"%"))
 
 # plot and save Figure 1 as svg
 Fig1 <- plot_grid_1legend(p1a ,p1c ,p1b ,p1d)
 #Fig1
-svglite::svglite(filename = "Figure1.svg",
+svglite::svglite(filename = "paper/Figures/Figure1.svg",
                  width = 1500*0.3 / 25.4, height = 1400*0.3 / 25.4)
 print(Fig1)
 dev.off()
 
-# maximum bias when PB =0.05, N = 200,  I2 = 0.94 at a true effect size of
-PB05N200_I2_75 <- subset(dat_1d, PB ==0.05)
+# maximum bias when PP =0.05, N = 200,  tau2 = 0.11 at a true effect size of
+PB05N200_I2_75 <- subset(dat_1d, PP ==0.05)
 PB05N200_I2_75[which(dat_1d$bias== max(dat_1d$bias)),]$g #g=0
 
 # if theta = 0.1, then the expected moderator effect is (PB=0)
 # group A: g = 0
-subset(dat_1d, PB ==0 & g ==0) #PB = 0, then E = 0.651
-round(subset(dat_1d, PB ==0 & g ==0)$E, 3) #E = 0.651
-round(subset(dat_1d, PB ==0 & g ==0)$bias, 3) # bias = 0.651
+subset(dat_1d, PP ==0 & g ==0) #PP = 0, then E = 0.651
+round(subset(dat_1d, PP ==0 & g ==0)$E, 3) #E = 0.651
+round(subset(dat_1d, PP ==0 & g ==0)$bias, 3) # bias = 0.651
 # group B: g = 0.1
-subset(dat_1d, PB ==0 & g ==0.1) #PB = 0, then E = 0.679
-round(subset(dat_1d, PB ==0 & g ==0.1)$E, 3) #E = 0.679
-round(subset(dat_1d, PB ==0 & g ==0.1)$bias, 3) # bias = 0.579
+subset(dat_1d, PP ==0 & g ==0.1) #PP = 0, then E = 0.679
+round(subset(dat_1d, PP ==0 & g ==0.1)$E, 3) #E = 0.679
+round(subset(dat_1d, PP ==0 & g ==0.1)$bias, 3) # bias = 0.579
 # moderator effect
-round(subset(dat_1d, PB ==0 & g ==0.1)$E, 3) - round(subset(dat_1d, PB ==0 & g ==0)$E, 3) #moderator effect = .028
-round(subset(dat_1d, PB ==0 & g ==0.1)$E, 3) - round(subset(dat_1d, PB ==0 & g ==0)$E, 3) -0.1 #bias in moderator effect = -.072
+round(subset(dat_1d, PP ==0 & g ==0.1)$E, 3) - round(subset(dat_1d, PP ==0 & g ==0)$E, 3) #moderator effect = .028
+round(subset(dat_1d, PP ==0 & g ==0.1)$E, 3) - round(subset(dat_1d, PP ==0 & g ==0)$E, 3) -0.1 #bias in moderator effect = -.072
 
 
-# if theta = 0.1, then the expected moderator effect is (PB=0.05)
+# if theta = 0.1, then the expected moderator effect is (PP=0.05)
 # group A: g=0
-subset(dat_1d, PB ==0.05 & g ==0) #PB = 0, then E = 0.558
-round(subset(dat_1d, PB ==0.05  & g ==0)$E, 3) #E = 0.558
-round(subset(dat_1d, PB ==0.05  & g ==0)$bias, 3) # bias = 0.558
+subset(dat_1d, PP ==0.05 & g ==0) #PP = 0, then E = 0.558
+round(subset(dat_1d, PP ==0.05  & g ==0)$E, 3) #E = 0.558
+round(subset(dat_1d, PP ==0.05  & g ==0)$bias, 3) # bias = 0.558
 # group B: g=0.1
-subset(dat_1d, PB ==0.05  & g ==0.1) #PB = 0, then E = 0.609
-round(subset(dat_1d, PB ==0.05  & g ==0.1)$E, 3) #E = 0.609
-round(subset(dat_1d, PB ==0.05  & g ==0.1)$bias, 3) # bias = 0.509
+subset(dat_1d, PP ==0.05  & g ==0.1) #PP = 0, then E = 0.609
+round(subset(dat_1d, PP ==0.05  & g ==0.1)$E, 3) #E = 0.609
+round(subset(dat_1d, PP ==0.05  & g ==0.1)$bias, 3) # bias = 0.509
 # moderator effect
-round(subset(dat_1d, PB ==0.05  & g ==0.1)$E, 3) - round(subset(dat_1d, PB ==0.05  & g ==0)$E, 3) #moderator effect = .051
-round(subset(dat_1d, PB ==0.05  & g ==0.1)$E, 3) - round(subset(dat_1d, PB ==0.05  & g ==0)$E, 3) -0.1 #bias in moderator effect = -.049
+round(subset(dat_1d, PP ==0.05  & g ==0.1)$E, 3) - round(subset(dat_1d, PP ==0.05  & g ==0)$E, 3) #moderator effect = .051
+round(subset(dat_1d, PP ==0.05  & g ==0.1)$E, 3) - round(subset(dat_1d, PP ==0.05  & g ==0)$E, 3) -0.1 #bias in moderator effect = -.049
 
 
 ### Example continuous moderator x1 ###
-#PB = 0.05, N = 200, tau2=0, thetai = x1 since beta0=0, beta=1
+#PP = 0.05, N = 200, tau2=0, thetai = x1 since beta0=0, beta=1
 #two scenarios: x1 in [0, 0.1] and x1 in [0.15, 0.25]
 
 #x1 in [0, 0.1]
@@ -189,7 +194,7 @@ x1vec <- seq(0,0.1,length.out=11)
 #generate publication biased data
 dat_cont1 <- do.call(rbind,flattenlist(
   lapply(1:11, function(i){
-    exp_val_MA(PB=.05, Zcv=Zcv, N=200, Nvec = rep(200, 11), I2=0, x1=x1vec[i],
+    exp_val_MA(PP=.05, Zcv=Zcv, N=200, Nvec = rep(200, 11), I2=0, x1=x1vec[i],
                x1vec=x1vec, beta0=0, beta1=1)})
 ))
 #obtain the WLS beta estimates given publication bias
@@ -215,70 +220,73 @@ paste0("beta0_PB = ", round(PB_betas_2[1],3),
 ##################### ----------  FIGURE 2  ---------------- ###################
 # Generating Data for Figure 2: Expected effect sizes given publication bias
 
-#generate values for the plot with PB1 = 0, PB2 = 0.2, N = 80, I2=0
+#generate values for the plot with PP1 = 0, PP2 = 0.2, N = 80, I2=0
 dat2a <- do.call(rbind,flattenlist(
-  lapply(c(PB_extreme, PB_medium), function(PB)
+  lapply(c(PP_extreme, PP_medium), function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_medium, I2 = 0) ) ) ) )
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_medium, I2 = 0) ) ) ) )
 
 #bias in the moderator effect when the moderator effect beta0=0, since gA = gB
-dat2a$bias <- rep(subset(dat2a, PB == PB_extreme)$E - subset(dat2a, PB == PB_medium)$E,2)
-groupB <- subset(dat2a, dat2a$PB == 0.2)
+dat2a$bias <- rep(subset(dat2a, PP == PP_extreme)$E - subset(dat2a, PP == PP_medium)$E,2)
+groupB <- subset(dat2a, dat2a$PP == 0.2)
 maxBiasB <- max(groupB$E - groupB$g )
 groupB[which(groupB$E - groupB$g == maxBiasB),]
-dat2a$PB <-factor(dat2a$PB)
+dat2a$PP <-factor(dat2a$PP)
 
 #if theta = 0 then the expected moderator effect is
-# group A, PB1 = 0
-subset(dat2a, PB ==0 & g ==0) #PB = 0, then E = 0.524
-round(subset(dat2a, PB ==0 & g ==0)$E, 3) #  E = 0.524
-#group B, PB2 = 0.2
-subset(dat2a, PB ==0.2 & g ==0) #PB = 0.2, then E = 0.048
-round(subset(dat2a, PB ==0.2 & g ==0)$E, 3) # E = 0.048
+# group A, PP1 = 0
+subset(dat2a, PP ==0 & g ==0) #PP = 0, then E = 0.524
+round(subset(dat2a, PP ==0 & g ==0)$E, 3) #  E = 0.524
+#group B, PP2 = 0.2
+subset(dat2a, PP ==0.2 & g ==0) #PP = 0.2, then E = 0.048
+round(subset(dat2a, PP ==0.2 & g ==0)$E, 3) # E = 0.048
 #moderator effect
-round(subset(dat2a, PB ==0 & g ==0)$E, 3) - round(subset(dat2a, PB ==0.2 & g ==0)$E, 3)
+round(subset(dat2a, PP ==0 & g ==0)$E, 3) - round(subset(dat2a, PP ==0.2 & g ==0)$E, 3)
 
-#zero moderator effect when thetaA=0, N=80, PB_A=0 and PB_B=0.2
-round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PB1=0, PB2=0.2, I2=0),3) #when thetaB=.391
-round(exp_val(PB=0.2, Zcv=Zcv, g=.3906, N=N_medium, I2 = 0)$E,3) #E_B = 0.524
+#zero moderator effect when thetaA=0, N=80, PP_A=0 and PP_B=0.2
+round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PP1=0, PP2=0.2, I2=0),3) #when thetaB=.391
+round(exp_val(PP=0.2, Zcv=Zcv, g=.3906, N=N_medium, I2 = 0)$E,3) #E_B = 0.524
 
-p2a <- p_bias_diff_exp_val(data = dat2a, title = expression(bolditalic(a)*":"~N==80*","~I^2==0*"%"))
+p2a <- p_bias_diff_exp_val(data = dat2a, title = expression(bolditalic(a)*":"~N==80*","~tau^2==0*","~I^2==0*"%"))
 
-#plot PB1 = 0, PB2 = 0.2, N = 80, I2=0.75
+#plot PP1 = 0, PP2 = 0.2, N = 80, I2=0.75
 dat2b <- do.call(rbind,flattenlist(
-  lapply(c(PB_extreme, PB_medium), function(PB)
+  lapply(c(PP_extreme, PP_medium), function(PP)
     lapply( seq(0,0.8,0.001), function(g)
-      exp_val(PB=PB, Zcv=Zcv, g=g, N=N_medium, I2 = 0.75) ) ) ) )
+      exp_val(PP=PP, Zcv=Zcv, g=g, N=N_medium, tau2 = tau2.Q3) ) ) ) )
 
-dat2b$bias <- rep(subset(dat2b, PB == PB_extreme)$E - subset(dat2b, PB == PB_medium)$E,2)
+round(mean(dat2b$I2)*100,2)
+round(tau2.Q3/(tau2.Q3 + PublicationBiasInModeratorAnalysis:::typ_v(dat2b$vg))*100,2)
 
-groupB <- subset(dat2b, PB == 0.2)
+dat2b$bias <- rep(subset(dat2b, PP == PP_extreme)$E - subset(dat2b, PP == PP_medium)$E,2)
+
+groupB <- subset(dat2b, PP == 0.2)
 maxBiasB <- max(groupB$E - groupB$g )
 groupB[which(groupB$E - groupB$g == maxBiasB),]
 
-dat2b$PB <-factor(dat2b$PB)
+dat2b$PP <-factor(dat2b$PP)
 
 #if theta = 0, then the expected moderator effect is
 # group A, PB1 = 0
-subset(dat2b, PB ==0 & g ==0) #PB = 0, then E = 0.677
-round(subset(dat2b, PB ==0 & g ==0)$E, 3) #E = 0.677
-#group B, PB2 = 0.2
-subset(dat2b, PB ==0.2 & g ==0) #PB = 0.2, then E = 0.268
-round(subset(dat2b, PB ==0.2 & g ==0)$E, 3) # E = 0.268
+subset(dat2b, PP ==0 & g ==0) #PP = 0, then E = 0.677
+round(subset(dat2b, PP ==0 & g ==0)$E, 3) #E = 0.677
+#group B, PP2 = 0.2
+subset(dat2b, PP ==0.2 & g ==0) #PP = 0.2, then E = 0.268
+round(subset(dat2b, PP ==0.2 & g ==0)$E, 3) # E = 0.268
 #moderator effect
-round(subset(dat2b, PB ==0 & g ==0)$E, 3) - round(subset(dat2b, PB ==0.2 & g ==0)$E, 3) #bias moderator effect = .409
+round(subset(dat2b, PP ==0 & g ==0)$E, 3) - round(subset(dat2b, PP ==0.2 & g ==0)$E, 3) #bias moderator effect = .409
 
-#zero moderator effect when thetaA=0, N=80, PB_A=0 and PB_B=0.2
-round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PB1=0, PB2=0.2, I2=0.75),3) #when thetaB=.432
-round(exp_val(PB=0.2, Zcv=Zcv, g=.432, N=N_medium, I2 = 0.75)$E,3) #E_B = 0.677
+#zero moderator effect when thetaA=0, N=80, PP_A=0 and PP_B=0.2
+round(sol.g2(N1=80, N2=80, g1=0,  Zcv=Zcv, PP1=0, PP2=0.2, tau2=tau2.Q3),3) #when thetaB=.432
+round(exp_val(PP=0.2, Zcv=Zcv, g=.432, N=N_medium, tau2 = tau2.Q3)$E,3) #E_B = 0.677
 
 # Create sub figure 2b
-p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(b)*":"~N==80*","~I^2==75*"%"))
+p2b <- p_bias_diff_exp_val(data = dat2b, title = expression(bolditalic(b)*":"~N==80*","~tau^2==.11*","~I^2==68*"%"))
 
 # Create and save Figure 2
 Fig2 <-plot_grid_1legend_2p(p2a, p2b)
 #Fig2
-svglite::svglite(filename = "Figure2.svg",  width = 1306*0.3 / 25.4,
+svglite::svglite(filename = "paper/Figures/Figure2.svg",  width = 1306*0.3 / 25.4,
                  height = 701*0.3 / 25.4)
 print(Fig2)
 dev.off()
@@ -301,15 +309,15 @@ dat_1c$E_b1 <- dat_1c$E - dat_1d$E
 dat_1c$bias_b1 <- dat_1c$E_b1 -beta1
 dat_1c$b1 <- dat_1c$g - dat_1c$g  #always zero
 #-> so E(b1) == bias(b1)
-dat_1c$PB <- factor(dat_1c$PB)
+dat_1c$PP <- factor(dat_1c$PP)
 p3b <- p_bias_exp_val(dat_1c, x = "g", y="bias_b1",
-                      title = expression(bolditalic(b)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0.313),
+                      title = expression(bolditalic(b)*":"~N[A]==40~"vs"~N[B]==200*","~tau^2==0.11),
                       ymin =-0.11, ymax = 0.51, size_text = 14, axis_text = 30)
 
 #Create Figure 3 and save as svg
 Fig3 <- plot_grid_1legend_2p(p3a, p3b)
 #Fig3
-svglite::svglite( filename = "C:/Users/ffruffer/OneDrive - Tilburg University/Project/Code/PublicationBiasInModeratorAnalysis/paper/Figures/Figure3.svg",  width = 2000*0.3 / 25.4,
+svglite::svglite( filename = "paper/Figures/Figure3.svg",  width = 2000*0.3 / 25.4,
                   height = 923*0.3 / 25.4)
 print(Fig3)
 dev.off()
@@ -319,43 +327,43 @@ dev.off()
 dat4 <- do.call(rbind,flattenlist(
   lapply(c(40,80), function(N)
     lapply( seq(0,1,0.01), function(g)
-      exp_val(PB=0.05, Zcv=Zcv, g=g, N=N, I2=0) ) ) ) )
+      exp_val(PP=0.05, Zcv=Zcv, g=g, N=N, I2=0) ) ) ) )
 N2 <- 80
 J2 <- (1 - 3/ (4 * (N2-2) - 1))
 
 #calculating g in group 2, s.t. the moderator effect is hidden for several different
 #true effect sizes in group 1
 # g1 = 0.3
-g2a <- sol.g2(N1=40, N2=80, g1=0.3,  Zcv=1.96, PB1=0.05, PB2=0.05, I2=0)
+g2a <- sol.g2(N1=40, N2=80, g1=0.3,  Zcv=1.96, PP1=0.05, PP2=0.05, I2=0)
 d2a <- g2a / J2
 vd2a <- N2/(N2/2)^2 + d2a^2 / (2*N2)
-mod2a_sol <- exp_val(PB=0.05, Zcv=Zcv, g=g2a, N=80, I2=0)
+mod2a_sol <- exp_val(PP=0.05, Zcv=Zcv, g=g2a, N=80, I2=0)
 
 # g1 = 0.2
-g2b <- sol.g2(N1=40, N2=80, g1=0.2,  Zcv=1.96, PB1=0.05, PB2=0.05, I2=0)
+g2b <- sol.g2(N1=40, N2=80, g1=0.2,  Zcv=1.96, PP1=0.05, PP2=0.05, I2=0)
 d2b <- g2b / J2
 vd2b <- N2/(N2/2)^2 + d2b^2 / (2*N2)
-mod2b_sol <- exp_val(PB=0.05, Zcv=Zcv, g=g2b, N=80, I2=0)
+mod2b_sol <- exp_val(PP=0.05, Zcv=Zcv, g=g2b, N=80, I2=0)
 
 # g1 = 0.4
-g2c <- sol.g2(N1=40, N2=80, g1=0.4,  Zcv=1.96, PB1=0.05, PB2=0.05, I2=0)
+g2c <- sol.g2(N1=40, N2=80, g1=0.4,  Zcv=1.96, PP1=0.05, PP2=0.05, I2=0)
 d2c <- g2c / J2
 vd2c <- N2/(N2/2)^2 + d2c^2 / (2*N2)
-mod2c_sol <- exp_val(PB=0.05, Zcv=Zcv, g=g2c, N=80, I2=0)
+mod2c_sol <- exp_val(PP=0.05, Zcv=Zcv, g=g2c, N=80, I2=0)
 
 # g1 = 0.1
-g2d <- sol.g2(N1=40, N2=80, g1=0.1,  Zcv=1.96, PB1=0.05, PB2=0.05, I2=0)
+g2d <- sol.g2(N1=40, N2=80, g1=0.1,  Zcv=1.96, PP1=0.05, PP2=0.05, I2=0)
 d2d <- g2d / J2
 vd2d <- N2/(N2/2)^2 + d2d^2 / (2*N2)
-mod2d_sol <- exp_val(PB=0.05, Zcv=Zcv, g=g2d, N=80, I2=0)
+mod2d_sol <- exp_val(PP=0.05, Zcv=Zcv, g=g2d, N=80, I2=0)
 
 #Attach the values to the data
 dat4 <- rbind(dat4, mod2a_sol, mod2b_sol,  mod2c_sol,  mod2d_sol)
 
 #General examples plug-in
 e <- 0.8
-i <- sol.g2(N1=40, N2=80, g1=e,  Zcv=1.96, PB1=0.05, PB2=0.05, I2=0)
-modsol <- exp_val(PB=0.05, Zcv=Zcv, g=i, N=80, I2=0)
+i <- sol.g2(N1=40, N2=80, g1=e,  Zcv=1.96, PP1=0.05, PP2=0.05, I2=0)
+modsol <- exp_val(PP=0.05, Zcv=Zcv, g=i, N=80, I2=0)
 dat4 <- rbind(dat4, modsol)
 line1 <- dat4[which(dat4$N==40 & dat4$g==e),]
 line2 <- dat4[which(dat4$N==80 & dat4$g==i),]
@@ -376,7 +384,7 @@ p4a <- ggplot(data=dat4,aes(x=g, y=E, linetype=N)) +
   geom_line(linewidth=1.2) +
   labs(y = expression(theta[i]^PB),
        x = expression(theta[i]),
-       title = expression(PB==0.05*","~I^2==0*"%"))+
+       title = expression(PP==0.05*","~tau^2==0*","~I^2==0*"%"))+
   scale_linetype_manual(values = c(1, 3), labels= c(expression("A:"~N[a]==40),
                                                     expression("B:"~N[b]==80)),
                         name = "Moderator Group") +
@@ -418,7 +426,7 @@ p4b <- p4a +
                data = coordsa, linetype = "solid", colour="grey30",
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE, parse=TRUE, x = 0.42, y = 0.69, size = size_text,
-            label= "~theta[a] - theta[b] == -0.257")
+            label= "~theta[a] - theta[b] == -0.257") #diffa = -0.2570834
 #p4b
 
 line1b <- dat4[which(dat4$N==40 & dat4$g==0.2),]
@@ -437,7 +445,7 @@ p4c <- p4b +
                data = coordsb, linetype = "solid", colour="grey30",
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.30, y = 0.58, size = size_text,
-            label= "~theta[a] - theta[b] ==-0.156")
+            label= "~theta[a] - theta[b] ==-0.156") #diffb = -0.1557488
 #p4c
 
 
@@ -457,7 +465,7 @@ p4d <- p4c +
                data = coordsc, linetype = "solid", colour="grey30",
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.55, y = 0.77, size = size_text,
-            label=  "~theta[a] - theta[b] ==-0.279")
+            label=  "~theta[a] - theta[b] ==-0.279") # diffc = -0.2791809
 #p4d
 
 
@@ -477,10 +485,10 @@ Fig4 <- p4d +
                data = coordsd, linetype = "solid", colour="grey30",
                arrow = arrow(length = unit(0.11, "inches"), type = "closed", ends = "last")) +
   geom_text(inherit.aes = FALSE,parse=TRUE, x = 0.2, y = 0.40, size = size_text,
-            label= "~theta[a] - theta[b] ==-0.061")
+            label= "~theta[a] - theta[b] ==-0.061") # diffd = -0.06052212
 #Fig4
 
-svglite::svglite(filename = "Figure4.svg",  width = 1250*0.3 / 25.4,
+svglite::svglite(filename = "paper/Figures/Figure4.svg",  width = 1250*0.3 / 25.4,
                  height = 1300*0.3 / 25.4)
 print(Fig4)
 dev.off()

@@ -3,6 +3,9 @@
 .RData
 .Ruserdata
 
+# data van Erp et al. (2017)
+paper/vanErp.xlsx
+
 # RStudio files
 .Rproj.user/
 

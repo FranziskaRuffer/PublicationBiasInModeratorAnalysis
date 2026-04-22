@@ -1,6 +1,6 @@
 #' Functions to obtain the expected effect sizes given publication bias
 #' Parameter:
-#' * PB = Publication Bias... proportion of non-significant effect sizes published
+#' * PP = publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
 #' * g = true effect size as standardized mean difference in form of Hedges' g
 #' * N = total sample size (N = nT + nC)
 #' * Zcv = critical Z value (used to calculate the critical value ycv)
@@ -17,17 +17,17 @@
 #' exp_val()
 #'
 #' @description Function to obtain the expected value given publication bias for one true effect size g (Hedges' g)
-#' @param PB amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)
+#' @param PP publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
 #' @param Zcv critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).
 #' @param g True effect size as standardized mean difference (we used Hedges' g)
 #' @param N Primary study total sample size
 #' @param I2 heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)
-#' @param tau2 heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)
+#' @param tau2 between study variance estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)
 #' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size
 #' @importFrom stats dnorm pnorm uniroot
 #' @export
-exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
+exp_val <- function(PP, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 
   if(is.na(I2)==TRUE & is.na(tau2) ==TRUE ){
     stop("Please specify the amount of heterogeneity as I2 or tau2. If you
@@ -74,10 +74,10 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
   }
 
   #expectation given publication bias
-  E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
-    (PB * p_ns + (1-p_ns))
+  E <- (PP * p_ns * E_nsig + (1-p_ns) * E_sig) /
+    (PP * p_ns + (1-p_ns))
 
-  return(data.frame(N, vg, tau2, I2, PB, g, ycv, E_sig, E_nsig, E))
+  return(data.frame(N, vg, tau2, I2, PP, g, ycv, E_sig, E_nsig, E))
 }
 
 #' Function to obtain the expected value given publication bias for a true effect size g (Hedges' g)
@@ -90,7 +90,7 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 #' with a given primary study sample size in a meta-analysis. Compared to the exp_val() function, the
 #' true effect sizes and sample sizes of other studies in the meta-analysis are taken into account when
 #' calculating the residual (\eqn{\tau^2}) for a given residual (\eqn{I^2}).
-#' @param PB amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)
+#' @param PP publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
 #' @param Zcv critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).
 #' @param N Primary study total sample size of a given study (not necessary when vg and vgvec are specified)
 #' @param Nvec Vector of all primary study total sample sizes in the meta-analysis (not necessary when vg and vgvec are specified)
@@ -98,7 +98,8 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 #' @param vgvec Vector of all primary study sampling variances in the meta-analysis (not necessary when N and Nvec are specified)
 #' @param I2 heterogeneity estimate in the meta-analysis
 #' @param N Primary study total sample size
-#' @param I2 residual heterogeneity estimate in the meta-analysis
+#' @param I2 residual heterogeneity estimate in the meta-analysis. Please specify either tau2 or I2.
+#' @param tau2 residual between study variance in the meta-analysis. Please specify either tau2 or I2.
 #' @param x1 moderator value of the given study in the meta-analysis
 #' @param x1vec vector with moderator values of all studies in the meta-analysis
 #' @param beta0 true intercept parameter of the meta-analysis
@@ -109,7 +110,7 @@ exp_val <- function(PB, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.
 #' @importFrom stats dnorm pnorm uniroot
 #' @export
-exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec,
+exp_val_MA <- function(PP, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2=NA, tau2=NA, x1, x1vec,
                        beta0, beta1, NoPB=FALSE, lower.tail = FALSE){
 
   #true effect size
@@ -163,11 +164,25 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
   ### Compute typical within-study variance of these two studies. Equation (9) in
   w <- c(1/vgvec)
   k <- length(w)
+
   # Takkouche et al. (1999, 2013)
   typ_v_T <- k * (1/sum(w))  #equal to vg if k = 1, or if all N are the same size
 
-  #heterogeneity
-  tau2 <- (I2 * typ_v_T) / (1-I2)
+  # checking whether I2 or tau2 were provided
+  if(is.na(I2) & is.na(tau2)){
+    warning("Please specify either tau2 or I2. Since no heterogeneity estimate was
+            specified, no heterogeneity (i.e., tau2 = I2 = 0) was assumed.")
+    tau2 = 0
+    I2 = 0
+  } else if (!is.na(I2) & !is.na(tau2)){
+    warning("You provided both tau2 and I2. Only tau2 will be used for this calulcation.")
+    I2 = tau2 / (tau2 + typ_v_T)
+  } else if (is.na(I2) & !is.na(tau2)){
+    I2 = tau2 / (tau2 + typ_v_T)
+  } else if (!is.na(I2) & is.na(tau2)){
+     #heterogeneity
+    tau2 <- (I2 * typ_v_T) / (1-I2)
+  }
 
   #probability of obtaining a non-significant result
   p_ns <- pnorm((ycv-g)/sqrt(vg+tau2), lower.tail = !lower.tail)
@@ -208,14 +223,14 @@ exp_val_MA <- function(PB, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2, x1, x1vec
 
   #expectation given publication bias
   if(NoPB == FALSE){
-    E <- (PB * p_ns * E_nsig + (1-p_ns) * E_sig) /
-      (PB * p_ns + (1-p_ns))
+    E <- (PP * p_ns * E_nsig + (1-p_ns) * E_sig) /
+      (PP * p_ns + (1-p_ns))
   }else if(NoPB == TRUE){
     E <- (1 * p_ns * E_nsig + (1-p_ns) * E_sig) /
       (1 * p_ns + (1-p_ns))
   }
 
-  return(data.frame(vg, typ_v_T, tau2, I2, PB, g, x1, beta0, beta1, ycv, NoPB, E_sig, E_nsig, E))
+  return(data.frame(vg, typ_v_T, tau2, I2, PP, g, x1, beta0, beta1, ycv, NoPB, E_sig, E_nsig, E))
 }
 
 
@@ -235,18 +250,29 @@ betas_PB <- function(data){
 #' @param dat data frame with columns vi, and NoPB
 #' @param beta0 true intercept in the meta-analysis
 #' @param beta1 true slope or moderator effect in the meta-analysis
-#' @param PB publication bias (0 = extreme publication bias, 1 = no publication bias)
-#' @param I2 residual heterogeneity indicator in form of I2
+#' @param PP publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
+#' @param I2 residual heterogeneity indicator in form of I2. Please specify either I2 or tau2, not both.
+#' @param tau2 residual between study variance. Please specify either I2 or tau2, not both.
 #' @param mods moderator variable (as would be inputted in the metafor mods statement)
 #' @param Zcv critical Z value for testing the primary study effect sizes
 #' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function return a vector with the estimated intercept and slope
 #' parameters give publication bias (i.e, c(b0, b1))
 #' @export
-PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail=FALSE ){
+PB_betas <- function(dat, beta0, beta1, PP, I2 = NA, tau2 = NA, mods, Zcv, lower.tail=FALSE ){
+
+  if(is.na(I2) & is.na(tau2)){
+    warning("Please specify either tau2 or I2. Since no heterogeneity estimate was
+            specified, no heterogeneity (i.e., tau2 = I2 = 0) was assumed.")
+    tau2 = 0
+    I2 = 0
+  } else if (!is.na(I2) & !is.na(tau2)){
+    # prefer tau2, whenever I2 and tau2 were specified
+    I2 = NA
+  }
 
   PBdat = do.call(rbind, lapply(1:nrow(dat), function(i)  {
-    exp_val_MA(PB=PB, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, x1=mods[i],
+    exp_val_MA(PP=PP, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, tau2 = tau2, x1=mods[i],
               x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
               lower.tail = lower.tail)
   } ))
@@ -260,9 +286,18 @@ PB_betas <- function(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail=FALSE ){
 #' Calculates difference in E1-E2 (needed for solve for g2)
 #'
 #' @noRd
-diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2, lower.tail = FALSE){
-  E1 <- exp_val(PB=PB1, Zcv=Zcv, g=g1, N=N1, I2=I2, lower.tail = lower.tail)$E
-  E2 <- exp_val(PB=PB2, Zcv=Zcv, g=g2, N=N2, I2=I2, lower.tail = lower.tail)$E
+diffE <- function(N1, N2, g1, g2, Zcv, PP1, PP2, I2=NA, tau2=NA,  lower.tail = FALSE){
+  if(is.na(I2) & is.na(tau2)){
+    warning("Please specify either tau2 or I2. Since no heterogeneity estimate was
+            specified, no heterogeneity (i.e., tau2 = I2 = 0) was assumed.")
+    tau2 = 0
+    I2 = 0
+  } else if (!is.na(I2) & !is.na(tau2)){
+    # prefer tau2, whenever I2 and tau2 were specified
+    I2 = NA
+  }
+  E1 <- exp_val(PP=PP1, Zcv=Zcv, g=g1, N=N1, I2=I2, tau2 = tau2, lower.tail = lower.tail)$E
+  E2 <- exp_val(PP=PP2, Zcv=Zcv, g=g2, N=N2, I2=I2, tau2 = tau2, lower.tail = lower.tail)$E
   diff <- E1-E2
   return(diff)
 }
@@ -276,15 +311,22 @@ diffE <- function(N1, N2, g1, g2, Zcv, PB1, PB2, I2, lower.tail = FALSE){
 #' @param N2  primary study sample size in all studie of moderator group two (single value assuming sample sizes to be constant in the moderator group)
 #' @param g1 true effect size in moderator group 1
 #' @param Zcv critical Z value for testing significance of effect sizes
-#' @param PB1 amount of publication bias in moderator group 1 (can range form 0 to 1)
-#' @param PB2 amount of publication bias in moderator group 2 (can range form 0 to 1)
+#' @param PP1 publication probability for non-significant studies for moderator group 1 (can range form 0 to 1)
+#' @param PP2 publication probability for non-significant studies for moderator group 2 (can range form 0 to 1)
 #' @param I2 amount of heterogeneity in the meta-analysis expressed as I2
+#' @param tau2 between study variance. Please specify either I2 or tau2.
 #' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @returns true effect size in second moderator group such that the moderator effect is completely hidden by publication bias.
 #' @export
-sol.g2 <- function(N1, N2, g1,  Zcv, PB1, PB2, I2=0, lower.tail = FALSE){
+sol.g2 <- function(N1, N2, g1,  Zcv, PP1, PP2, I2=NA, tau2 = NA,  lower.tail = FALSE){
+  if(is.na(I2) & is.na(tau2)){
+    warning("Please specify either tau2 or I2. Since no heterogeneity estimate was
+            specified, no heterogeneity (i.e., tau2 = I2 = 0) was assumed.")
+    tau2 = 0
+    I2 = 0
+  }
   f_sol <- uniroot(diffE , N1 = N1, N2 = N2, g1 = g1, Zcv = Zcv,
-                   PB1=PB1, PB2 = PB2, I2=I2, lower.tail = lower.tail,
+                   PP1=PP1, PP2 = PP2, I2=I2, tau2 = tau2, lower.tail = lower.tail,
                    interval = c(0.00001, g1+3))
   return(as.numeric(f_sol$root))
 }
@@ -301,5 +343,16 @@ flattenlist     <- function(x){
   }else{
     return(out)
   }
+}
+
+#` function to calculate the typical sampling variance
+#'
+#' @noRd
+typ_v <- function(vi){
+  w <- 1/vi
+  k <- length(vi)
+  # Takkouche et al. (1999, 2013)
+  typ_v_T <- k * (1/sum(w))
+  return(typ_v_T)
 }
 

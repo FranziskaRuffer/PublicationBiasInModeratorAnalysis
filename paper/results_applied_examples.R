@@ -73,7 +73,7 @@ mods <- dat$Preregistered
 #' default parameter setting in the shiny app
 beta1 = 0
 I2res = c(0, 0.25, 0.5, 0.75)
-PB = c(0, 0.05, 0.2, 0.5, 1)
+PP = c(0, 0.05, 0.2, 0.5, 1)
 Zcv <- qnorm(0.025, lower.tail=F) #testing for a positive effect
 
 #' Creating the three default figures from the shiny app manually
@@ -98,8 +98,8 @@ print(Fig7)
 dev.off()
 
 
-# Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv or .tsv file
-#' Note: Specify another directory, if you do not want ot save the data in your current directory!
+# Alternatively, you can call the pb_mods_App() shiny app and upload the data as .csv, .tsv or txt. file
+#' Note: Specify another directory, if you do not want to save the data in your current directory!
 write.csv(dat, "dat.lehmann2018.csv")
 pb_mods_App()  # select the data file and variables in the app, check the manual tab for help
 

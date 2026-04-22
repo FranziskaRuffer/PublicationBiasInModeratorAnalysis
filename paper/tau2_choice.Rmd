@@ -1,0 +1,62 @@
+---
+title: "Choosing reasonable amounts of heterogeneity for our theoretical examples and the Shiny app"
+output: html_document
+---
+
+For the theoretical analyses and the Shiny App, we had to select reasonable values for the
+(residual) between study variances $\tau^2$. To reflect $$\tau^2$$-estimates in
+Psychology, we based our choice of $\tau^2$ on a dataset by van [Erp et al. (2017)](https://openpsychologydata.metajnl.com/articles/jopd.33) 
+which can be accessed via this [link](https://doi.org/10.5334/jopd.33.s2).
+The dataset contains 705 heterogeneity estimates from 61 meta-analyses published in Psychological Bulletin
+between 1990 and 2013. 
+As all examples in our paper use standardized mean differences as effect size, 
+we filtered the this dataset for $\tau^2$-estimates that came from a meta-analysis
+in the effect size was a standardized mean difference. 
+
+The following code details how we obtained the first, second and third quantile of the
+observed tau2 estimates. 
+
+```{r, }
+# Import the data
+url <- "https://doi.org/10.5334/jopd.33.s2"
+file_name <- "vanErp.xlsx"
+file_path <-  getwd()
+destfile <- paste0(file_path,"/", file_name, sep = "")
+download.file(url = url, destfile = destfile, mode = "wb")
+data <- readxl::read_excel(destfile)
+
+```
+
+
+
+```{r}
+# we are interested only in tau2 estimates where SMD were the effect sizes, however,
+# the dataset also contains information from meta-analyses with different effect sizes
+unique(data$`Type of ES`)
+
+# select SMD effect sizes only
+data.SMD <- subset(data, `Type of ES` %in% 
+                  c("Cohen's d" , "Hedges' g", "Corrected Cohen's d" ,"Weighted Cohen's d"))
+
+# show the histogram of tau2 estimates
+hist(data.SMD$`tau^2`, xlab = "tau2", main = "Histogram tau2 estimates from meta-analyses
+     using standardized mean differences as effect size")
+
+
+# obtain the quantiles
+Q1 <- quantile(data.SMD$`tau^2`,  0.25, na.rm = TRUE)
+Q2 <- quantile(data.SMD$`tau^2`,  0.5, na.rm = TRUE)
+Q3 <- quantile(data.SMD$`tau^2`,  0.75, na.rm = TRUE)
+
+```
+
+Of the `r nrow(subset(data, !is.na(data[["tau^2"]])))` $\tau^2$-estimates in the data, only `r nrow(data.SMD) ` belong to meta-analyses using standardized mean differences. The frequency of $\tau^2$-estimates is shown in the histogram.
+The $\tau^2$ distribution yields the following quantiles: 
+
+- Q1 = `r Q1`
+- Q2 = `r Q2`
+- Q3 = `r Q3`.
+
+
+As a side note, all calculations in the paper and in the app can also be done by specifying
+certain (residual) $I^2$ values instead of specifying $\tau^2$.

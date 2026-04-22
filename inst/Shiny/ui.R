@@ -72,6 +72,12 @@ ui <- fluidPage(
         )
       ),
 
+      selectInput("heterogeneity", withMathJax(HTML("Heterogeneity displayed as residual
+                  between-study variance \\(\\tau_{res}^{2}\\) or as \\(I_{res}^{2}\\)")),
+                  choices = c("tau2res" = "tau2res",
+                              "I2res" = "I2res")),
+
+
 
       selectInput("lower.tail", "Sidedness of the effect size testing",
                   choices = c("Testing for a positive effect (upper tail)." = FALSE,
@@ -94,13 +100,20 @@ ui <- fluidPage(
                      label = withMathJax("$$\\beta_{1}$$"),
                      value = 0, min = -5, max = 5 ),
 
-        h5(strong("Residual heterogneity:")),
-        numericInput("I2.spec",label = withMathJax("$$I_{res}^{2}$$"),
-                     value = 25, min = 0, max = 100 ),
+        conditionalPanel(
+          condition = "input.heterogeneity == 'I2res'",
+          h5(strong("Residual heterogneity:")),
+          numericInput("I2.spec",label = withMathJax("$$I_{res}^{2}$$"),
+                     value = 25, min = 0, max = 100 )),
+        conditionalPanel(
+          condition = "input.heterogeneity == 'tau2res'",
+          h5(strong("Residual heterogneity:")),
+          numericInput("tau2.spec",label = withMathJax("$$\\tau_{res}^{2}$$"),
+                       value = .04, min = 0, max = 10 )),
 
-        h5(strong("Proportion of statistically non-significant effect sizes published:")),
-        numericInput("PB.spec",
-                     label = "PB",
+        h5(strong("Probability of publishing statistically non-significant effect sizes:")),
+        numericInput("PP.spec",
+                     label = "PP",
                      value = 0.2, min = 0, max = 1 ),
       ),
 
