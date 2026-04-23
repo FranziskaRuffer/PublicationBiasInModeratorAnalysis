@@ -73,9 +73,9 @@ ui <- fluidPage(
       ),
 
       selectInput("heterogeneity", withMathJax(HTML("Heterogeneity displayed as residual
-                  between-study variance \\(\\tau_{res}^{2}\\) or as \\(I_{res}^{2}\\)")),
-                  choices = c("tau2res" = "tau2res",
-                              "I2res" = "I2res")),
+                  between-study variance \\(\\tau^{2}\\) or as \\(I^{2}\\)")),
+                  choices = c("tau2" = "tau2res",
+                              "I2" = "I2res")),
 
 
 
@@ -103,15 +103,15 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "input.heterogeneity == 'I2res'",
           h5(strong("Residual heterogneity:")),
-          numericInput("I2.spec",label = withMathJax("$$I_{res}^{2}$$"),
+          numericInput("I2.spec",label = withMathJax("$$I^{2}$$"),
                      value = 25, min = 0, max = 100 )),
         conditionalPanel(
           condition = "input.heterogeneity == 'tau2res'",
           h5(strong("Residual heterogneity:")),
-          numericInput("tau2.spec",label = withMathJax("$$\\tau_{res}^{2}$$"),
+          numericInput("tau2.spec",label = withMathJax("$$\\tau^{2}$$"),
                        value = .04, min = 0, max = 10 )),
 
-        h5(strong("Probability of publishing statistically non-significant effect sizes:")),
+        h5(strong("Publication probability of statistically non-significant studies (PP):")),
         numericInput("PP.spec",
                      label = "PP",
                      value = 0.2, min = 0, max = 1 ),
@@ -219,10 +219,11 @@ ui <- fluidPage(
                               'No Publication Bias' = FALSE), while observed effect sizes displayed as circles were assumed to be free of publication bias (i.e., 'No Publication Bias' = TRUE).
                               The regression line from a mixed-effects meta-regression analysis of the original data is shown as a black solid line (check the 'Metafor Output' tab for the details of
                               this model). The broken lines in different colours show the mixed-effects meta-regression lines, given a certain amount of publication bias. For instance, a publication
-                              bias of 0.05 refers to assuming that only 5% of the statistically non-significant effect sizes are published, while all statistically significant effect sizes are published.
-                              Hence, a publication bias of 1 is the same as assuming the absence of publication bias. The four sub-figures within a figure only differ by the amount of true effect size heterogeneity in the form of
-                              \\(I^{2}\\) that is assumed for the publication bias analyses (broken coloured lines). For instance, subfigure \\(a\\) assumes no heterogeneity as \\(I^{2}=0%\\),
-                              while subfigure \\(d\\) assumes a large amount of heterogeneity \\(I^{2}=75%\\).
+                              probability of 0.05 refers to assuming that only 5% of the statistically non-significant effect sizes are published, while all statistically significant effect sizes are published.
+                              Hence, a publication probability of 1 in studies with a non-significant result is the same as assuming the absence of publication bias. The four sub-figures within a figure only
+                              differ by the amount of true effect size heterogeneity in the form of either the residual between study variance \\(\tau^{2}\\) or \\(I^{2}\\) that is assumed for the publication bias analyses
+                              (broken coloured lines). For instance, subfigure \\(a\\) assumes no heterogeneity as \\(\tau^{2}=0\\) or \\(I^{2}=0%\\),
+                              while subfigure \\(d\\) assumes a large amount of residual heterogeneity \\(\tau^{2}=0.11\\) or \\(I^{2}=75%\\).
                               Figures 1, 2 and 3 differ in their assumptions about the true overall effect size or, equivalently,
                               the true intercept \\(\\beta_{0}\\) assumed in the publication bias analyses. Figure 1 assumes that the true effect for all studies is
                               zero (i.e., the true intercept \\(\\beta_{0}\\) is zero and the true moderator effect
@@ -235,7 +236,7 @@ ui <- fluidPage(
                                solid line from the meta-analysis on the observed data. Whenever this occurs in a plausible scenario, we may suspect that the observed moderator effect is not
                                robust to publication bias and that publication bias could have induced an artificial moderator effect. 'Plausible scenario' in this context refers to interpreting only
                                those scenarios that are realistic for a given meta-analysis. For instance, if your meta-analysis includes published, statistically non-significant effect sizes, results from publication bias analyses
-                               assuming extreme publication bias (i.e., 'Publication Bias' = 0, red dotted lines) are not plausible/possible and should not be interpreted."))),
+                               assuming extreme publication bias (i.e., 'Publication probability of non-significant studies' = 0, red dotted lines) are not plausible/possible and should not be interpreted."))),
 
 
                   tags$h4(strong("Additional Analysis/Figure")),
@@ -253,22 +254,22 @@ ui <- fluidPage(
                   tags$h5(strong("Choosing Realistic Parameter Values for Additional Analyses")),
                   bslib::card(class = "mb-4",
                               withMathJax(helpText("When you want to deviate from the default analyses and the default parameters estimates, you can perform additional publication bias
-                    analyses. For that, you need to choose realistic values for the true intercept \\(\\beta_{0}\\), moderator effect  \\(\\beta_{1}\\), and residual heterogeneity \\(I_{res}^2\\).
+                    analyses. For that, you need to choose realistic values for the true intercept \\(\\beta_{0}\\), moderator effect  \\(\\beta_{1}\\), and residual heterogeneity \\(\tau^2\\) or \\(I^2\\).
                                          The following gives some guidelines to help you with this process: ",br(),br(),
                                             "One aspect to consider is the realistic true effect size range. For instance, when you're analysing standardizes mean differences and your moderator values
                                                                range from 0 to 20, specifying a large moderator effect (e.g. \\(\\beta_{1}=0.5\\) may be unrealistic
                                                                as the true effect sizes would range up to \\(\\beta_{0} + 0.5 * 20 = \\beta_{0} + 10\\). ",br(),br(),
                                             "Concerning the residual
-                                                               heterogeneity parameter \\(I_{res}^2\\), you could perform sensitivity analyses using the \\(I_{res}^2\\)
-                                                               estimated by the mixed-effects meta-analysis (see 'Metafor Output' Tab) and an \\(I_{res}^2\\) that
-                                                               is lower than the estimated and one that is larger than the estimated \\(I_{res}^2\\). This is important, since
+                                                               heterogeneity parameter, you could perform sensitivity analyses using the either the residual \\(\tau^2\\) or \\(I^2\\)
+                                                               estimated by the mixed-effects meta-analysis (see 'Metafor Output' Tab) and an estimate that
+                                                               is lower than the estimated and one that is larger than the estimated residual \\(\tau^2\\) or \\(I^2\\). This is important, since
                                                                publication bias can distort heterogeneity estimates (Augusteijn et al., 2019; Hedges & Vevea, 1996; Jackson, 2006).
-                                                               So, for instance, when the estimated \\(I_{res}^2 =60\\%\\), you
-                                                               could run three analyses with \\(I_{res}^2 =60\\%\\), and \\(I_{res}^2 =60\\% \\pm 25\\%\\). ",br(),br(),
-                                            "The publication bias
+                                                               So, for instance, when the estimated residual \\(I^2 =60\\%\\), you
+                                                               could run three analyses with \\(I^2 =60\\%\\), and \\(I^2 =60\\% \\pm 25\\%\\). ",br(),br(),
+                                            "The `publication probability of non-significant studies (PP)`
                                                                parameter can range from 0 to 1. Setting it to zero (i.e., extreme publication bias where none of the statistically
                                                                non-significant effect sizes are being published) only makes sense, when the vast majority of effect sizes from published studies in your
-                                                               meta-analysis are statistically significant. Setting Publication Bias to one implies that no publication selection bias is applied. Research
+                                                               meta-analysis are statistically significant. Setting PP to one implies that no publication selection bias is applied. Research
                                                                in social sciences has reported publication selection proportions between .04 and 0.85 (Cooper et al., 1997; Franco et al., 2014;
                                                                Mathur & VanderWeele, 2021)."))),
 
@@ -280,7 +281,7 @@ ui <- fluidPage(
                               markdown("This app supports data uploads as csv, tsv or txt file. Before uploading any data, the meta-analytic data by Lehmann et al. (2018) on the red romance hypothesis is shown.
                               The data is accessed via the metadat package (Viechtbauer et al., 2025).
                               In line with the shiny app analysis reported in the [paper](https://osf.io/preprints/metaarxiv/nskz5_v1), only studies with female participants are included, and the publication bias indicator variable 'NoPB' evaluates to 'TRUE' for studies
-                              that were either pre-registered or not published or both. For more information on the specifics on the shown analysis, please refer to the paper." )),
+                              that were either pre-registered or not published or both. For more information on the specifics about the shown analysis, please refer to the paper." )),
 
 
                   tags$h5(strong("Effect Size Measures")),
@@ -349,6 +350,10 @@ ui <- fluidPage(
                        div(
                          class = "hanging-indent",
                          "Mathur, M. B., & VanderWeele, T. J. (2021). Estimating publication bias in meta-analyses of peer-reviewed studies: A meta-meta-analysis across disciplines and journal tiers. Research Synthesis Methods, 12(2), 176–191. https://doi.org/10.1002/jrsm.1464"
+                       ),
+                       div(
+                         class = "hanging-indent",
+                         "van Erp, S. van, Verhagen, J., Grasman, R. P. P. P., & Wagenmakers, E.-J. (2017). Estimates of between-study heterogeneity for 705 meta-analyses reported in psychological bulletin from 1990–2013. Journal of Open Psychology Data, 5(1). https://doi.org/10.5334/jopd.33"
                        ),
                        div(
                          class = "hanging-indent",

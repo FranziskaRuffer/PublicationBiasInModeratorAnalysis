@@ -4,7 +4,7 @@ output: html_document
 ---
 
 For the theoretical analyses and the Shiny App, we had to select reasonable values for the
-(residual) between study variances $\tau^2$. To reflect $$\tau^2$$-estimates in
+(residual) between study variances $\tau^2$. To reflect $\tau^2$-estimates in
 Psychology, we based our choice of $\tau^2$ on a dataset by van [Erp et al. (2017)](https://openpsychologydata.metajnl.com/articles/jopd.33) 
 which can be accessed via this [link](https://doi.org/10.5334/jopd.33.s2).
 The dataset contains 705 heterogeneity estimates from 61 meta-analyses published in Psychological Bulletin

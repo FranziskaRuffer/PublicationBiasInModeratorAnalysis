@@ -73,25 +73,29 @@ mods <- dat$Preregistered
 #' default parameter setting in the shiny app
 beta1 = 0
 I2res = c(0, 0.25, 0.5, 0.75)
+tau2eres = c(0, .01, .04, .11)
 PP = c(0, 0.05, 0.2, 0.5, 1)
 Zcv <- qnorm(0.025, lower.tail=F) #testing for a positive effect
 
 #' Creating the three default figures from the shiny app manually
 #' and saving them as svg
-Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0,
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 #Fig5
 svglite::svglite(filename = "Figure5.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig5)
 dev.off()
 
-Fig6 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2, mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+Fig6 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2,
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig6)
 dev.off()
 
-Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta), mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta),
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
 svglite::svglite(filename = "Figure7.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig7)
@@ -149,18 +153,18 @@ selmodel(mem_sens, "stepfun", steps = c(0.025, 1))
 
 
 #' create Figure 8
-p1 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =0, I2res = 0 , ind = "a")
-p2 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =0, I2res = 0.25 , ind = "b")
-p3 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, I2res = 0 , ind = "c")
-p4 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, I2res = 0.25 , ind = "d")
-p5 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), I2res = 0 , ind = "e")
-p6 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf,
-                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), I2res = 0.25 , ind = "f")
+p1 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0,
+                                                           mem = mem,Zcv = Zcv, beta0 =0, ind = "a")
+p2 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0.01 ,
+                                                           mem = mem,Zcv = Zcv, beta0 =0, ind = "b")
+p3 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0 ,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, ind = "c")
+p4 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0.01 ,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta)/2, ind = "d")
+p5 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), ind = "e")
+p6 <-PublicationBiasInModeratorAnalysis:::individual_plots(dat = dat, mods = dat$pperf, heterogeneity = "tau2res", tau2res=0.01 ,
+                                                           mem = mem,Zcv = Zcv, beta0 =as.numeric(res$beta), ind = "f")
 
 Fig8 <- plot_grid_1legend_6(p1, p2, p3, p4, p5, p6)
 

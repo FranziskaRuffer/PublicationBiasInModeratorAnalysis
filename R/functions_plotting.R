@@ -490,7 +490,7 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     PB_I2_0 <-  rbind(subset(PBbiased_betas, I2 ==I2res ), I20_PBorig_b )
   }
 
-  p1 <- plot_contmod(data =subset(PB_dat, PP == "original"), I2_PB=PB_I2_0,  beta0=beta0, beta1=beta1,
+  p1 <- plot_contmod(data =subset(PB_dat, PP == "original"), I2_PB=PB_I2_0,  beta0=beta0, beta1=beta1,heterogeneity=heterogeneity,
                      I2=I2res, tau2 = tau2res, weights=rel_weights, mod.title = mod.title, ind )
   return(p1)
 }
