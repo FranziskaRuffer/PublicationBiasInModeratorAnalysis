@@ -5,7 +5,7 @@
 \title{Functions to obtain the expected effect sizes given publication bias
 Parameter:
 \itemize{
-\item PB = Publication Bias... proportion of non-significant effect sizes published
+\item PP = publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
 \item g = true effect size as standardized mean difference in form of Hedges' g
 \item N = total sample size (N = nT + nC)
 \item Zcv = critical Z value (used to calculate the critical value ycv)
@@ -20,10 +20,10 @@ Function to obtain the expected value given publication bias for one true effect
 exp_val()
 }}
 \usage{
-exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA, lower.tail = FALSE)
+exp_val(PP, Zcv, g, N, I2 = NA, tau2 = NA, lower.tail = FALSE)
 }
 \arguments{
-\item{PB}{amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)}
+\item{PP}{publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)}
 
 \item{Zcv}{critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).}
 
@@ -33,7 +33,7 @@ exp_val(PB, Zcv, g, N, I2 = NA, tau2 = NA, lower.tail = FALSE)
 
 \item{I2}{heterogeneity estimate in the meta-analysis (not necessary when tau2 is specified)}
 
-\item{tau2}{heterogeneity estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)}
+\item{tau2}{between study variance estimate in the meta-analysis (\eqn{\tau^2}) (not necessary when I2 is specified)}
 
 \item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }

@@ -4,7 +4,7 @@
 \alias{sol.g2}
 \title{Solves for the true effect size g2 in group2, s.t. E1=E2 (hidden moderator effect)}
 \usage{
-sol.g2(N1, N2, g1, Zcv, PB1, PB2, I2 = 0, lower.tail = FALSE)
+sol.g2(N1, N2, g1, Zcv, PP1, PP2, I2 = NA, tau2 = NA, lower.tail = FALSE)
 }
 \arguments{
 \item{N1}{primary study sample size in all studie of moderator group one (single value assuming sample sizes to be constant in the moderator group)}
@@ -15,11 +15,13 @@ sol.g2(N1, N2, g1, Zcv, PB1, PB2, I2 = 0, lower.tail = FALSE)
 
 \item{Zcv}{critical Z value for testing significance of effect sizes}
 
-\item{PB1}{amount of publication bias in moderator group 1 (can range form 0 to 1)}
+\item{PP1}{publication probability for non-significant studies for moderator group 1 (can range form 0 to 1)}
 
-\item{PB2}{amount of publication bias in moderator group 2 (can range form 0 to 1)}
+\item{PP2}{publication probability for non-significant studies for moderator group 2 (can range form 0 to 1)}
 
 \item{I2}{amount of heterogeneity in the meta-analysis expressed as I2}
+
+\item{tau2}{between study variance. Please specify either I2 or tau2.}
 
 \item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }

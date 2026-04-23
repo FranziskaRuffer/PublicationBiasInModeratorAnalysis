@@ -4,7 +4,17 @@
 \alias{PB_betas}
 \title{Publication biased intercept and slope parameters in a meta-anaylsis with one moderator}
 \usage{
-PB_betas(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail = FALSE)
+PB_betas(
+  dat,
+  beta0,
+  beta1,
+  PP,
+  I2 = NA,
+  tau2 = NA,
+  mods,
+  Zcv,
+  lower.tail = FALSE
+)
 }
 \arguments{
 \item{dat}{data frame with columns vi, and NoPB}
@@ -13,9 +23,11 @@ PB_betas(dat, beta0, beta1, PB, I2, mods, Zcv, lower.tail = FALSE)
 
 \item{beta1}{true slope or moderator effect in the meta-analysis}
 
-\item{PB}{publication bias (0 = extreme publication bias, 1 = no publication bias)}
+\item{PP}{publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)}
 
-\item{I2}{residual heterogeneity indicator in form of I2}
+\item{I2}{residual heterogeneity indicator in form of I2. Please specify either I2 or tau2, not both.}
+
+\item{tau2}{residual between study variance. Please specify either I2 or tau2, not both.}
 
 \item{mods}{moderator variable (as would be inputted in the metafor mods statement)}
 

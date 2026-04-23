@@ -8,8 +8,10 @@ Plot_additional_analysis(
   data,
   beta0,
   beta1,
+  heterogeneity,
+  tau2,
   I2,
-  PB,
+  PP,
   mem,
   betasPB,
   mod.title = "Moderator value"
@@ -24,7 +26,7 @@ Plot_additional_analysis(
 
 \item{I2}{single value between 0 and 1 specifying the level of residual I2}
 
-\item{PB}{single value between 0 and 1 specifyin the publication bias}
+\item{PP}{single value between 0 and 1 specifying the publication probability for non-significant studies}
 
 \item{mem}{metafor mixed-effects meta-analysis model}
 

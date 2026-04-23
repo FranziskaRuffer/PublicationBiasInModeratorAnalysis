@@ -12,8 +12,10 @@ PBanalysis_plots(
   beta0 = 0,
   beta1 = 0,
   mod.title = "Moderator value",
+  heterogeneity = "tau2res",
   I2res = c(0, 0.25, 0.5, 0.75),
-  PB = c(0, 0.05, 0.2, 0.5, 1),
+  tau2res = c(0, 0.01, 0.04, 0.11),
+  PP = c(0, 0.05, 0.2, 0.5, 1),
   lower.tail = FALSE
 )
 }
@@ -32,9 +34,13 @@ PBanalysis_plots(
 
 \item{mod.title}{character string with the x-axis label specifying the moderator (default = "Moderator value")}
 
+\item{heterogeneity}{indicator whether the figures should be created for four different levels of tau2res or I2res. Possible values are "tau2res" or "I2res".}
+
 \item{I2res}{vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))}
 
-\item{PB}{vector with four levels of publication bias (PB=c(0, 0.05, 0.2, 0.5, 1))}
+\item{tau2res}{vector with four between study variances (default is tau2res = c(0, 0.01, 0.04, 0.11) based on van Erp et al. (2017))}
+
+\item{PP}{vector with four publication probabilities for non-significant studies (PP=c(0, 0.05, 0.2, 0.5, 1))}
 
 \item{lower.tail}{Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)}
 }

@@ -9,13 +9,14 @@ calculating the residual $$tau^2$$ for a given residual $$I^2$$.
 exp_val_MA}
 \usage{
 exp_val_MA(
-  PB,
+  PP,
   Zcv,
   N = NA,
   Nvec = NA,
   vg = NA,
   vgvec = NA,
-  I2,
+  I2 = NA,
+  tau2 = NA,
   x1,
   x1vec,
   beta0,
@@ -25,7 +26,7 @@ exp_val_MA(
 )
 }
 \arguments{
-\item{PB}{amount of publication bias between 0 (extreme publication bias) and 1 (no publication bias)}
+\item{PP}{publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)}
 
 \item{Zcv}{critical Z value defined by the normal quantile function. For instance Zcv = qnorm(.975).}
 
@@ -37,7 +38,9 @@ exp_val_MA(
 
 \item{vgvec}{Vector of all primary study sampling variances in the meta-analysis (not necessary when N and Nvec are specified)}
 
-\item{I2}{residual heterogeneity estimate in the meta-analysis}
+\item{I2}{residual heterogeneity estimate in the meta-analysis. Please specify either tau2 or I2.}
+
+\item{tau2}{residual between study variance in the meta-analysis. Please specify either tau2 or I2.}
 
 \item{x1}{moderator value of the given study in the meta-analysis}
 

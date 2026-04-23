@@ -221,9 +221,9 @@ ui <- fluidPage(
                               this model). The broken lines in different colours show the mixed-effects meta-regression lines, given a certain amount of publication bias. For instance, a publication
                               probability of 0.05 refers to assuming that only 5% of the statistically non-significant effect sizes are published, while all statistically significant effect sizes are published.
                               Hence, a publication probability of 1 in studies with a non-significant result is the same as assuming the absence of publication bias. The four sub-figures within a figure only
-                              differ by the amount of true effect size heterogeneity in the form of either the residual between study variance \\(\tau^{2}\\) or \\(I^{2}\\) that is assumed for the publication bias analyses
-                              (broken coloured lines). For instance, subfigure \\(a\\) assumes no heterogeneity as \\(\tau^{2}=0\\) or \\(I^{2}=0%\\),
-                              while subfigure \\(d\\) assumes a large amount of residual heterogeneity \\(\tau^{2}=0.11\\) or \\(I^{2}=75%\\).
+                              differ by the amount of true effect size heterogeneity in the form of either the residual between study variance \\(\\tau^{2}\\) or \\(I^{2}\\) that is assumed for the publication bias analyses
+                              (broken coloured lines). For instance, subfigure \\(a\\) assumes no heterogeneity as \\(\\tau^{2}=0\\) or \\(I^{2}=0%\\),
+                              while subfigure \\(d\\) assumes a large amount of residual heterogeneity \\(\\tau^{2}=0.11\\) or \\(I^{2}=75%\\).
                               Figures 1, 2 and 3 differ in their assumptions about the true overall effect size or, equivalently,
                               the true intercept \\(\\beta_{0}\\) assumed in the publication bias analyses. Figure 1 assumes that the true effect for all studies is
                               zero (i.e., the true intercept \\(\\beta_{0}\\) is zero and the true moderator effect
@@ -254,15 +254,15 @@ ui <- fluidPage(
                   tags$h5(strong("Choosing Realistic Parameter Values for Additional Analyses")),
                   bslib::card(class = "mb-4",
                               withMathJax(helpText("When you want to deviate from the default analyses and the default parameters estimates, you can perform additional publication bias
-                    analyses. For that, you need to choose realistic values for the true intercept \\(\\beta_{0}\\), moderator effect  \\(\\beta_{1}\\), and residual heterogeneity \\(\tau^2\\) or \\(I^2\\).
+                    analyses. For that, you need to choose realistic values for the true intercept \\(\\beta_{0}\\), moderator effect  \\(\\beta_{1}\\), and residual heterogeneity \\(\\tau^2\\) or \\(I^2\\).
                                          The following gives some guidelines to help you with this process: ",br(),br(),
                                             "One aspect to consider is the realistic true effect size range. For instance, when you're analysing standardizes mean differences and your moderator values
                                                                range from 0 to 20, specifying a large moderator effect (e.g. \\(\\beta_{1}=0.5\\) may be unrealistic
                                                                as the true effect sizes would range up to \\(\\beta_{0} + 0.5 * 20 = \\beta_{0} + 10\\). ",br(),br(),
                                             "Concerning the residual
-                                                               heterogeneity parameter, you could perform sensitivity analyses using the either the residual \\(\tau^2\\) or \\(I^2\\)
+                                                               heterogeneity parameter, you could perform sensitivity analyses using the either the residual \\(\\tau^2\\) or \\(I^2\\)
                                                                estimated by the mixed-effects meta-analysis (see 'Metafor Output' Tab) and an estimate that
-                                                               is lower than the estimated and one that is larger than the estimated residual \\(\tau^2\\) or \\(I^2\\). This is important, since
+                                                               is lower than the estimated and one that is larger than the estimated residual \\(\\tau^2\\) or \\(I^2\\). This is important, since
                                                                publication bias can distort heterogeneity estimates (Augusteijn et al., 2019; Hedges & Vevea, 1996; Jackson, 2006).
                                                                So, for instance, when the estimated residual \\(I^2 =60\\%\\), you
                                                                could run three analyses with \\(I^2 =60\\%\\), and \\(I^2 =60\\% \\pm 25\\%\\). ",br(),br(),
