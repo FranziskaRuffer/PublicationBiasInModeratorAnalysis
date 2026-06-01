@@ -104,8 +104,8 @@ p_bias_exp_val <- function(data, x, y,  title, size_text = 8, axis_text = 23, ym
 #' @param heterogeneity indicator whether the figures should be created for four different levels of tau2res or I2res. Possible values are "tau2res" or "I2res".
 #' @param I2res vector with four levels of residual I2 (default is I2res=c(0, 0.25, 0.5, 0.75))
 #' @param tau2res vector with four between study variances (default is tau2res = c(0, 0.01, 0.04, 0.11) based on van Erp et al. (2017))
-#' @param PP vector with four publication probabilities for non-significant studies (PP=c(0, 0.05, 0.2, 0.5, 1))
-#' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
+#' @param PP vector with five publication probabilities for non-significant studies (PP=c(0, 0.05, 0.2, 0.5, 1))
+#' @param lower.tail Indicates the sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @returns  Shiny app final default plot
 #' @export
 PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="Moderator value", heterogeneity = "tau2res",
@@ -118,7 +118,7 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
         lapply(PP, function(pp){
           lapply(1:nrow(dat), function(i)  {
             exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=t2res, x1=mods[i],
-                       x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                       x1vec = mods, beta0= beta0, beta1= beta1, at.risk.of.PB = dat$at.risk.of.PB[i],
                        lower.tail = lower.tail)
           } )
         })
@@ -140,7 +140,7 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
                            "I2"=rep(0, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
                            x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), at.risk.of.PB = dat$at.risk.of.PB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
                            E = dat$yi)
     PB_dat <- rbind(exp_given_PB, original )
     weights <- 1/(original$vg + original$tau2)
@@ -178,7 +178,7 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
         lapply(PP, function(pp){
           lapply(1:nrow(dat), function(i)  {
             exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=i2res, x1=mods[i],
-                       x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                       x1vec = mods, beta0= beta0, beta1= beta1, at.risk.of.PB = dat$at.risk.of.PB[i],
                        lower.tail = lower.tail)
           } )
         })
@@ -200,7 +200,7 @@ PBanalysis_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
                            "I2"=rep(0, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
                            x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), at.risk.of.PB = dat$at.risk.of.PB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
                            E = dat$yi)
     PB_dat <- rbind(exp_given_PB, original )
     weights <- 1/(original$vg + original$tau2)
@@ -263,7 +263,7 @@ Plot_additional_analysis <- function(data, beta0, beta1, heterogeneity, tau2, I2
                         list(val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = PP,  val4 = I2*100))
 
   }
-    p<-ggplot2::ggplot(data = data, aes(x = x1, y = yi,   shape = NoPB)) +
+    p<-ggplot2::ggplot(data = data, aes(x = x1, y = yi,   shape = at.risk.of.PB)) +
     geom_point(size = rel.weights, alpha = 0.5) +
     ggtitle(title) +
     labs(x =mod.title,
@@ -273,8 +273,9 @@ Plot_additional_analysis <- function(data, beta0, beta1, heterogeneity, tau2, I2
     #sensitivity analysis slope
     geom_abline(aes(slope = betasPB[2,1], intercept = betasPB[1,1], colour ="sensitivity", linetype="sensitivity"),linewidth=0.75, show.legend = TRUE) +
 
-    scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 17),
-                       name = "No Publication Bias") +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17),
+                       name = "At risk of publication bias",
+                       labels = c("no", "yes")) +
     # Manual color scale for PB
     scale_color_manual(
       values = c("original" = "black", "sensitivity" = "#E66100"),
@@ -289,7 +290,7 @@ Plot_additional_analysis <- function(data, beta0, beta1, heterogeneity, tau2, I2
     guides(
       colour = guide_legend("Analysis",  title.position = "top" ),
       linetype = guide_legend("Analysis", title.position = "top", override.aes = list(linewidth = 0.75) ),
-      shape = guide_legend(title = "No Publication Bias", title.position = "top", override.aes = list(linetype = 0,  size = 2))
+      shape = guide_legend(title = "At risk of publication bias", title.position = "top", override.aes = list(linetype = 0,  size = 2))
     ) +
     theme(legend.position = "bottom")
 
@@ -318,7 +319,7 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, heterogeneity, I2, tau2,  w
                         list(val0 = ind, val1 = round(beta0, 3), val2 = round(beta1, 3), val3 = I2*100))
   }
 
-  p<-ggplot2::ggplot(data = data, aes(x = x1, y = E,   shape = NoPB)) +
+  p<-ggplot2::ggplot(data = data, aes(x = x1, y = E,   shape = at.risk.of.PB)) +
     geom_point(size = weights, alpha = 0.5) +
     ggtitle(title) +
     labs(x =mod.title,
@@ -331,8 +332,9 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, heterogeneity, I2, tau2,  w
     geom_abline(aes(slope = beta1, intercept = beta0, colour = I2_PB$PP[5],  linetype=I2_PB$PP[5]),linewidth=0.75, show.legend = TRUE) +
     geom_abline(aes(slope = I2_PB$beta1PB[6], intercept = I2_PB$beta0PB[6], colour = I2_PB$PP[6], linetype=I2_PB$PP[6]), linewidth=0.75,show.legend = TRUE) +
 
-    scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 17),
-                       name = "No Publication Bias") +
+    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17),
+                       name = "At risk of publication bias",
+                       labels =c("no", "yes")) +
     # Manual color scale for PB
     scale_color_manual(
       values = c("0" = "red", "0.05" = "#E66100", "0.2" = "#006CD1", "0.5" = "#5D3A9B", "1" = "darkgray", "original" = "black"),
@@ -347,7 +349,7 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, heterogeneity, I2, tau2,  w
     guides(
       colour = guide_legend("Publication probability of non-significant studies",  title.position = "top" ),
       linetype = guide_legend("Publication probability of non-significant studies", title.position = "top", override.aes = list(linewidth = 0.75) ),
-      shape = guide_legend(title = "No Publication Bias", title.position = "top", override.aes = list(linetype = 0,  size = 2))
+      shape = guide_legend(title = "At risk of publication bias", title.position = "top", override.aes = list(linetype = 0,  size = 2))
     ) +
     theme(legend.position = "bottom")
 
@@ -431,7 +433,7 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     lapply(PP, function(pp) {
       lapply(1:nrow(dat), function(i)  {
         exp_val_MA(PP=pp, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2res, tau2 =tau2res, x1=mods[i],
-                   x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+                   x1vec = mods, beta0= beta0, beta1= beta1, at.risk.of.PB = dat$at.risk.of.PB[i],
                    lower.tail = lower.tail)
       } )})))
 
@@ -452,7 +454,7 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
                            "I2"=rep(mem$I2, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
                            x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), at.risk.of.PB = dat$at.risk.of.PB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
                            E = dat$yi)
     PB_dat <- rbind(exp_given_PB, original )
     weights <- 1/(original$vg + original$tau2)
@@ -479,7 +481,7 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
     original <- data.frame("vg" = dat$vi, "typ_v_T"=rep(NA, nrow(dat)), "tau2"=rep(mem$tau2, nrow(dat)),
                            "I2"=rep(mem$I2, nrow(dat)), "PP" = rep("original",nrow(dat)), "g"=rep(NA, nrow(dat)),
                            x1 = mods, beta0=rep(beta0, nrow(dat)), beta1 = rep(beta1, nrow(dat)),
-                           ycv = rep(NA, nrow(dat)), NoPB = dat$NoPB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
+                           ycv = rep(NA, nrow(dat)), at.risk.of.PB = dat$at.risk.of.PB,  E_sig = rep(NA, nrow(dat)), E_nsig = rep(NA, nrow(dat)),
                            E = dat$yi)
     PB_dat <- rbind(exp_given_PB, original )
     weights <- 1/(original$vg + original$tau2)

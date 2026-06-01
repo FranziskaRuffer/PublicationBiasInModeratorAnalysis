@@ -104,14 +104,14 @@ exp_val <- function(PP, Zcv, g, N, I2=NA, tau2=NA, lower.tail=FALSE){
 #' @param x1vec vector with moderator values of all studies in the meta-analysis
 #' @param beta0 true intercept parameter of the meta-analysis
 #' @param beta1 true slope parameter (moderator effect) of the meta-analysis
-#' @param NoPB whether the given primary study is assumed to be affected by publication bias (FALSE = default) or
-#'            whether the study is unaffected by publication bias (TRUE)
+#' @param at.risk.of.PB whether the given primary study is assumed to be at risk of publication bias (TRUE = default) or
+#'            whether the study is likely not at risk of publication bias (FALSE)
 #' @param lower.tail Indicates sidedness of the effect size testing (e.g., lower.tail = FALSE indicates that one tests for a positive effect.)
 #' @return This function returns a single numeric value of the expected effect size given publication bias for a given effect size in a meta-analysis.
 #' @importFrom stats dnorm pnorm uniroot
 #' @export
 exp_val_MA <- function(PP, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2=NA, tau2=NA, x1, x1vec,
-                       beta0, beta1, NoPB=FALSE, lower.tail = FALSE){
+                       beta0, beta1, at.risk.of.PB=TRUE, lower.tail = FALSE){
 
   #true effect size
   g <- beta0 + beta1*x1
@@ -222,15 +222,15 @@ exp_val_MA <- function(PP, Zcv, N = NA, Nvec= NA, vg=NA, vgvec=NA, I2=NA, tau2=N
   }
 
   #expectation given publication bias
-  if(NoPB == FALSE){
+  if(at.risk.of.PB == TRUE){
     E <- (PP * p_ns * E_nsig + (1-p_ns) * E_sig) /
       (PP * p_ns + (1-p_ns))
-  }else if(NoPB == TRUE){
+  }else if(at.risk.of.PB == FALSE){
     E <- (1 * p_ns * E_nsig + (1-p_ns) * E_sig) /
       (1 * p_ns + (1-p_ns))
   }
 
-  return(data.frame(vg, typ_v_T, tau2, I2, PP, g, x1, beta0, beta1, ycv, NoPB, E_sig, E_nsig, E))
+  return(data.frame(vg, typ_v_T, tau2, I2, PP, g, x1, beta0, beta1, ycv, at.risk.of.PB, E_sig, E_nsig, E))
 }
 
 
@@ -247,7 +247,7 @@ betas_PB <- function(data){
 
 #' Publication biased intercept and slope parameters in a meta-anaylsis with one moderator
 #' @description calls publication biased data via exp_val_MA() and calculates publication biased betas using betas_PB()
-#' @param dat data frame with columns vi, and NoPB
+#' @param dat data frame with columns vi, and at.risk.of.PB
 #' @param beta0 true intercept in the meta-analysis
 #' @param beta1 true slope or moderator effect in the meta-analysis
 #' @param PP publication probability for non-significant studies amount between 0 (extreme publication bias) and 1 (no publication bias)
@@ -273,7 +273,7 @@ PB_betas <- function(dat, beta0, beta1, PP, I2 = NA, tau2 = NA, mods, Zcv, lower
 
   PBdat = do.call(rbind, lapply(1:nrow(dat), function(i)  {
     exp_val_MA(PP=PP, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, I2=I2, tau2 = tau2, x1=mods[i],
-              x1vec = mods, beta0= beta0, beta1= beta1, NoPB = dat$NoPB[i],
+              x1vec = mods, beta0= beta0, beta1= beta1, at.risk.of.PB = dat$at.risk.of.PB[i],
               lower.tail = lower.tail)
   } ))
 

@@ -62,7 +62,7 @@ ui <- fluidPage(
       selectInput("x1", "Moderator", choices = NULL),
 
       selectizeInput(
-        "NoPB",
+        "at.risk.of.PB",
         "Publication bias indicator (optional)",
         choices = NULL,
         selected = NULL,
@@ -215,8 +215,8 @@ ui <- fluidPage(
                   bslib::card(class = "mb-4",
                               withMathJax(helpText("In each sub-figure, the effect sizes are on the y-axis and the moderator values on the x-axis. The observed effect sizes from your data set are shown as
                               data points in the shape of triangles or circles. The data point size reflects the effect size's weight in the meta-analysis; that is, the larger the data point, the larger
-                              its weight in the meta-analysis. Observed effect sizes displayed as triangles are assumed to be affected by publication bias (i.e., the publication bias indicator
-                              'No Publication Bias' = FALSE), while observed effect sizes displayed as circles were assumed to be free of publication bias (i.e., 'No Publication Bias' = TRUE).
+                              its weight in the meta-analysis. Observed effect sizes displayed as triangles are assumed to be at risk of publication bias (i.e., the publication bias indicator
+                              'At risk of publication bias' = 'yes'), while observed effect sizes displayed as circles were assumed not to be at risk of publication bias (i.e., 'At risk of publication bias' = 'no').
                               The regression line from a mixed-effects meta-regression analysis of the original data is shown as a black solid line (check the 'Metafor Output' tab for the details of
                               this model). The broken lines in different colours show the mixed-effects meta-regression lines, given a certain amount of publication bias. For instance, a publication
                               probability of 0.05 refers to assuming that only 5% of the statistically non-significant effect sizes are published, while all statistically significant effect sizes are published.
@@ -280,7 +280,7 @@ ui <- fluidPage(
                   bslib::card(class = "mb-4",
                               markdown("This app supports data uploads as csv, tsv or txt file. Before uploading any data, the meta-analytic data by Lehmann et al. (2018) on the red romance hypothesis is shown.
                               The data is accessed via the metadat package (Viechtbauer et al., 2025).
-                              In line with the shiny app analysis reported in the [paper](https://osf.io/preprints/metaarxiv/nskz5_v1), only studies with female participants are included, and the publication bias indicator variable 'NoPB' evaluates to 'TRUE' for studies
+                              In line with the shiny app analysis reported in the [paper](https://osf.io/preprints/metaarxiv/nskz5_v1), only studies with female participants are included, and the publication bias indicator variable 'at.risk.of.PB' evaluates to 'no' for studies
                               that were either pre-registered or not published or both. For more information on the specifics about the shown analysis, please refer to the paper." )),
 
 
@@ -298,13 +298,13 @@ ui <- fluidPage(
 
                   tags$h5(strong("Publication Bias Indicator")),
                   bslib::card(class = "mb-4",
-                              helpText("You can specify in your data set whether publication bias may affect an effect size. With the publication bias indicator, you can distinguish between studies that are assumed to be
-                       affected by publication bias and those that are likely not affected by it. This indicator is a TRUE/FALSE variable, and it is used in the analysis to only apply publication
-                       bias to those effect sizes for which the indicator is 'FALSE'. For instance, the selection of pre-registered studies for publication could be less or not at all influenced by
+                              helpText("You can specify in your data set whether an effect size was at risk of publication bias. With the publication bias indicator, you can distinguish between studies that are assumed to be
+                       affected by publication bias and those that are likely not affected by it. This indicator is a logical variable (i.e., taking values 'TRUE'/'FALSE''), and it is used in the analysis to only apply publication
+                       bias to those effect sizes for which the indicator is 'TRUE'. For instance, the selection of pre-registered studies for publication could be less or not at all influenced by
                        whether the effect size is statistically significant or not. So, it might make sense to not apply publication bias to those effect sizes from pre-registered studies and
-                       to, hence, set the publication bias indicator to 'TRUE' for those effect sizes. Another example is unpublished studies, as they were not selected for publication
-                       in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'TRUE' for these effect sizes.
-                       In case you do not select a logical variable ('TRUE'/'FALSE'), assumptions will be made to internally convert the values of this variable to 'TRUE' and 'FALSE' and
+                       to, hence, set the publication bias indicator to 'FALSE' for those effect sizes. Another example is unpublished studies, as they were not selected for publication
+                       in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'FALSE' for these effect sizes.
+                       In case that the publication bias indicator in your dataset is not coded as 'TRUE'/'FALSE', assumptions will be made to internally convert the values of this variable to 'TRUE' (e.g. '1', 'true', 'YES') and 'FALSE' (e.g. '0', 'false', 'NO') and
                        a warning message will be shown."
                        )),
 

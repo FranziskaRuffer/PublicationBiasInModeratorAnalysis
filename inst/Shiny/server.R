@@ -16,7 +16,7 @@ server <- function(input, output, session){
       dat <- subset(dat, Gender == "Females" & !is.na(Preregistered))
 
       dat$Preregistered <- ifelse(dat$Preregistered == "Pre-Registered", 1, 0)
-      dat$NoPB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", TRUE, FALSE)
+      dat$at.risk.of.PB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", 'no', 'yes')
 
     } else {
       # whenever data is uploaded, check which file type and separators are used
@@ -90,13 +90,13 @@ server <- function(input, output, session){
                         choices = c("", df_cols),
                         selected = "Preregistered")
 
-      updateSelectizeInput(session, "NoPB",
+      updateSelectizeInput(session, "at.risk.of.PB",
                            choices = c("None" = "", df_cols),
-                           selected = if ("NoPB" %in% df_cols) "NoPB" else "",
+                           selected = if ("at.risk.of.PB" %in% df_cols) "at.risk.of.PB" else "",
                            server = TRUE)
 
     } else {
-      # for any uploaded data, select columns in the data as variable (NoPB does not
+      # for any uploaded data, select columns in the data as variable (at.risk.of.PB does not
       # need to be selected)
       updateSelectInput(session, "yi",
                         choices = c("", df_cols),
@@ -114,9 +114,9 @@ server <- function(input, output, session){
                         choices = c("", df_cols),
                         selected = if (is_default && "Preregistered" %in% df_cols) "Preregistered" else "")
 
-      updateSelectizeInput(session, "NoPB",
+      updateSelectizeInput(session, "at.risk.of.PB",
                            choices = c("None" = "", df_cols),
-                           selected = if (is_default && "NoPB" %in% df_cols) "NoPB" else "",
+                           selected = if (is_default && "at.risk.of.PB" %in% df_cols) "at.risk.of.PB" else "",
                            server = TRUE)
     }
   })
@@ -191,38 +191,39 @@ server <- function(input, output, session){
       stop("Unknown sampling variance/SE type. Please choose 'vi' or 'sei'.")
     }
 
-    if (is.null(input$NoPB) || input$NoPB == "" || !(input$NoPB %in% names(df))) {
+    if (is.null(input$at.risk.of.PB) || input$at.risk.of.PB == "" || !(input$at.risk.of.PB %in% names(df))) {
       # No column selected → assume all studies potentially biased
-      df$NoPB <- rep(FALSE, nrow(df))
+      df$at.risk.of.PB <- rep(TRUE, nrow(df))
     } else {
-      col <- df[[input$NoPB]]
+      col <- df[[input$at.risk.of.PB]]
       # Convert common formats to logical
       if (is.logical(col)) {
-        df$NoPB <- col
+        df$at.risk.of.PB <- !col
       } else if (is.numeric(col)) {
-        df$NoPB <- col == 1
+        df$at.risk.of.PB <- col != 1
         showNotification(
-          paste("The values of the publication bias indicator variable were converted such that a (numeric) value of
-              1 indicates no publication bias (i.e. No Publication Bias = 'TRUE'), while
-              any other value indicates publication bias (i.e. No Publication Bias = 'FALSE')."),
+          paste("The publication bias indicator variable was converted such that a numeric
+          value of 1 indicates not at risk of publication bias (At risk of publication bias = FALSE),
+          while any other value indicates at risk of publication bias (At risk of publication bias = TRUE)."),
           type = "warning"
         )
       } else if (is.character(col)) {
-        df$NoPB <- tolower(col) %in% c("true", "yes", "1")
+        df$at.risk.of.PB <- !tolower(col) %in% c("true", "yes", "1")
         showNotification(
-          paste("The values of the publication bias indicator variable were converted such that the
-                following (character) values - 'true', 'yes' or '1' - indicate no publication bias (i.e. No Publication Bias = 'TRUE'), while
-                any other value indicates publication bias (i.e. No Publication Bias = 'FALSE')."),
+          paste("The publication bias indicator variable was converted such that
+                the character values 'true', 'yes', or '1' indicate not at risk
+                of publication bias (At risk of publication bias = FALSE), while any other value
+                indicates at risk of publication bias (At risk of publication bias = TRUE)."),
           type = "warning"
         )
       } else {
         validate(
-          need(FALSE, "NoPB column must be logical, numeric (0/1), or yes/no.")
+          need(FALSE, "Publication bias indicator column must be logical, numeric (0/1), or yes/no.")
         )
       }
     }
 
-    check_cols <- c("yi", "x1", "vi", "NoPB")
+    check_cols <- c("yi", "x1", "vi", "at.risk.of.PB")
     # Validate that df$yi exists and df$vi is numeric and not null
     validate(
       need(input$yi %in% names(df), "Selected effect size column does not exist.")

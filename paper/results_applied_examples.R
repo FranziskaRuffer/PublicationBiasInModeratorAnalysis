@@ -65,9 +65,9 @@ round(unique(lsma$tau2.f), 3)  #two tau2 parameters rounded
 
 
 #' Making sure that the naming is correct for the PBanalysis_plots() function
-#' NoPB indicates studies that did not face publication selection: (TRUE)
+#' at.risk.of.PB indicates studies that are not at risk of publication bias: 'FALSE'
 #' including pre-registered studies and non-published studies
-dat$NoPB <- ifelse(dat$Preregistered==1 |dat$PRPublication=="No" , TRUE, FALSE)
+dat$at.risk.of.PB <- ifelse(dat$Preregistered==1 |dat$PRPublication=="No" , 'FALSE', 'TRUE')
 mods <- dat$Preregistered
 
 #' default parameter setting in the shiny app
@@ -80,7 +80,7 @@ Zcv <- qnorm(0.025, lower.tail=F) #testing for a positive effect
 #' Creating the three default figures from the shiny app manually
 #' and saving them as svg
 Fig5 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =0,
-                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-registered (no=0, yes=1)")
 #Fig5
 svglite::svglite(filename = "Figure5.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
@@ -88,14 +88,14 @@ print(Fig5)
 dev.off()
 
 Fig6 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2,
-                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-registered (no=0, yes=1)")
 svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig6)
 dev.off()
 
 Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta),
-                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-Registered (No=0, Yes=1)")
+                         heterogeneity = "tau2res", mod.title = "Moderator: Pre-registered (no=0, yes=1)")
 svglite::svglite(filename = "Figure7.svg",  width = 850*0.3 / 25.4,
                  height = 707*0.3 / 25.4)
 print(Fig7)
@@ -124,7 +124,7 @@ table(dat$pperf)  #moderator ranges from 3 to 40. while most lie below 20
 #' Renaming some variables to fit the PBanalysis_plot() function
 dat$vi <- dat$se^2
 dat$yi <- dat$smd
-dat$NoPB <- rep(FALSE, nrow(dat))  #no information about pre-registration (and only published studies)
+dat$at.risk.of.PB <- rep(TRUE, nrow(dat))  #no information about pre-registration (and only published studies)
 
 #' random effects model
 res <- rma(smd, sei=se, data=dat)
