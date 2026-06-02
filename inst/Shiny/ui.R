@@ -299,13 +299,13 @@ ui <- fluidPage(
                   tags$h5(strong("Publication Bias Indicator")),
                   bslib::card(class = "mb-4",
                               helpText("You can specify in your data set whether an effect size was at risk of publication bias. With the publication bias indicator, you can distinguish between studies that are assumed to be
-                       affected by publication bias and those that are likely not affected by it. This indicator is a logical variable (i.e., taking values 'TRUE'/'FALSE''), and it is used in the analysis to only apply publication
+                       affected by publication bias and those that are likely not affected by it. This indicator is a logical variable (i.e., taking values 'TRUE'/'FALSE'), and it is used in the analysis to only apply publication
                        bias to those effect sizes for which the indicator is 'TRUE'. For instance, the selection of pre-registered studies for publication could be less or not at all influenced by
                        whether the effect size is statistically significant or not. So, it might make sense to not apply publication bias to those effect sizes from pre-registered studies and
                        to, hence, set the publication bias indicator to 'FALSE' for those effect sizes. Another example is unpublished studies, as they were not selected for publication
                        in the first place. So, you can avoid adding publication bias to unpublished studies by setting the publication bias indicator column to 'FALSE' for these effect sizes.
-                       In case that the publication bias indicator in your dataset is not coded as 'TRUE'/'FALSE', assumptions will be made to internally convert the values of this variable to 'TRUE' (e.g. '1', 'true', 'YES') and 'FALSE' (e.g. '0', 'false', 'NO') and
-                       a warning message will be shown."
+                       In case that the publication bias indicator in your dataset is not coded as 'TRUE'/'FALSE', assumptions will be made to internally convert the values of this variable to 'FALSE' for values such as '0', 'false', or 'NO' and
+                       any other value to 'TRUE'. This process is not case sensitive and a warning message will be shown whenever the publication bias indicator was converted internally."
                        )),
 
                   tags$h4(strong("Handling Missing Values")),

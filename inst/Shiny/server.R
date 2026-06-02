@@ -16,7 +16,7 @@ server <- function(input, output, session){
       dat <- subset(dat, Gender == "Females" & !is.na(Preregistered))
 
       dat$Preregistered <- ifelse(dat$Preregistered == "Pre-Registered", 1, 0)
-      dat$at.risk.of.PB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", 'no', 'yes')
+      dat$at.risk.of.PB <- ifelse(dat$Preregistered == 1 | dat$PRPublication == "No", FALSE, TRUE)
 
     } else {
       # whenever data is uploaded, check which file type and separators are used
@@ -198,27 +198,28 @@ server <- function(input, output, session){
       col <- df[[input$at.risk.of.PB]]
       # Convert common formats to logical
       if (is.logical(col)) {
-        df$at.risk.of.PB <- !col
+        df$at.risk.of.PB <- col
       } else if (is.numeric(col)) {
-        df$at.risk.of.PB <- col != 1
+        df$at.risk.of.PB <- col == 1
         showNotification(
           paste("The publication bias indicator variable was converted such that a numeric
-          value of 1 indicates not at risk of publication bias (At risk of publication bias = FALSE),
-          while any other value indicates at risk of publication bias (At risk of publication bias = TRUE)."),
+          value of 1 indicates that the study is at risk of publication bias (At risk of publication bias = TRUE),
+          while any other value indicates that the study is not at risk of publication bias (At risk of publication bias = FALSE)."),
           type = "warning"
         )
       } else if (is.character(col)) {
-        df$at.risk.of.PB <- !tolower(col) %in% c("true", "yes", "1")
+        df$at.risk.of.PB <- !tolower(col) %in% c("false", "no", "0")
         showNotification(
           paste("The publication bias indicator variable was converted such that
-                the character values 'true', 'yes', or '1' indicate not at risk
+                the character values 'false', 'no', or '0' indicate that a study is not at risk
                 of publication bias (At risk of publication bias = FALSE), while any other value
-                indicates at risk of publication bias (At risk of publication bias = TRUE)."),
+                indicates that the study is not at risk of publication bias (At risk of publication bias = TRUE)."),
           type = "warning"
         )
       } else {
         validate(
-          need(FALSE, "Publication bias indicator column must be logical, numeric (0/1), or yes/no.")
+          need(FALSE, "Publication bias indicator column must be logical (TRUE/FALSE), numeric (0/1), or yes/no. Whether
+               character variables are upper or lower case does not matter.")
         )
       }
     }

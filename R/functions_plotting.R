@@ -273,9 +273,10 @@ Plot_additional_analysis <- function(data, beta0, beta1, heterogeneity, tau2, I2
     #sensitivity analysis slope
     geom_abline(aes(slope = betasPB[2,1], intercept = betasPB[1,1], colour ="sensitivity", linetype="sensitivity"),linewidth=0.75, show.legend = TRUE) +
 
-    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17),
+    scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16),
                        name = "At risk of publication bias",
-                       labels = c("no", "yes")) +
+                       breaks = c("TRUE", "FALSE"),
+                       labels = c( "yes", "no"), drop = FALSE) +
     # Manual color scale for PB
     scale_color_manual(
       values = c("original" = "black", "sensitivity" = "#E66100"),
@@ -332,9 +333,10 @@ plot_contmod <- function(data, I2_PB,  beta0, beta1, heterogeneity, I2, tau2,  w
     geom_abline(aes(slope = beta1, intercept = beta0, colour = I2_PB$PP[5],  linetype=I2_PB$PP[5]),linewidth=0.75, show.legend = TRUE) +
     geom_abline(aes(slope = I2_PB$beta1PB[6], intercept = I2_PB$beta0PB[6], colour = I2_PB$PP[6], linetype=I2_PB$PP[6]), linewidth=0.75,show.legend = TRUE) +
 
-    scale_shape_manual(values = c("FALSE" = 16, "TRUE" = 17),
-                       name = "At risk of publication bias",
-                       labels =c("no", "yes")) +
+    scale_shape_manual(values = c("TRUE" = 17, "FALSE" = 16),
+                         name = "At risk of publication bias",
+                         breaks = c("TRUE", "FALSE"),
+                         labels = c( "yes", "no"), drop = FALSE) +
     # Manual color scale for PB
     scale_color_manual(
       values = c("0" = "red", "0.05" = "#E66100", "0.2" = "#006CD1", "0.5" = "#5D3A9B", "1" = "darkgray", "original" = "black"),
@@ -496,3 +498,4 @@ individual_plots <- function(dat, mods, mem, Zcv, beta0=0, beta1=0, mod.title="M
                      I2=I2res, tau2 = tau2res, weights=rel_weights, mod.title = mod.title, ind )
   return(p1)
 }
+
