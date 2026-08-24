@@ -87,6 +87,7 @@ svglite::svglite(filename = "Figure5.svg",  width = 850*0.3 / 25.4,
 print(Fig5)
 dev.off()
 
+# Figure 7
 Fig6 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta)/2,
                          heterogeneity = "tau2res", mod.title = "Moderator: Pre-registered (no=0, yes=1)")
 svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
@@ -94,6 +95,55 @@ svglite::svglite(filename = "Figure6.svg",  width = 850*0.3 / 25.4,
 print(Fig6)
 dev.off()
 
+# In Figure 6, certain scenarios return an intercept close to the observed,
+# while yielding a less negative moderator effect. These scenarios are:
+# Fig6 estimates: beta0 = 0.065, PP = 0.05, tau2 = 0.01
+exp_given_PB <- do.call(rbind, PublicationBiasInModeratorAnalysis:::flattenlist(
+  lapply(1:nrow(dat), function(i)  {
+  exp_val_MA(PP=.05, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=0.01, x1=mods[i],
+             x1vec = mods, beta0= as.numeric(rema$beta)/2, beta1= 0, at.risk.of.PB = dat$at.risk.of.PB[i],
+             lower.tail = FALSE)
+} )))
+betas <- PublicationBiasInModeratorAnalysis:::betas_PB(exp_given_PB)
+(beta_info <- round(data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                        "tau2" = 0.01, "PP" = .05), 3))
+
+# Fig6 estimates: beta0 = 0.065, PP = 0.05, tau2 = 0.04
+exp_given_PB <- do.call(rbind, PublicationBiasInModeratorAnalysis:::flattenlist(
+  lapply(1:nrow(dat), function(i)  {
+    exp_val_MA(PP=.05, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=0.04, x1=mods[i],
+               x1vec = mods, beta0= as.numeric(rema$beta)/2, beta1= 0, at.risk.of.PB = dat$at.risk.of.PB[i],
+               lower.tail = FALSE)
+  } )))
+betas <- PublicationBiasInModeratorAnalysis:::betas_PB(exp_given_PB)
+(beta_info <- round(data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                         "tau2" = 0.04, "PP" = .05),3))
+
+# Fig6 estimates: beta0 = 0.065, PP = 0.2, tau2 = 0.11
+exp_given_PB <- do.call(rbind, PublicationBiasInModeratorAnalysis:::flattenlist(
+  lapply(1:nrow(dat), function(i)  {
+    exp_val_MA(PP=.2, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=0.11, x1=mods[i],
+               x1vec = mods, beta0= as.numeric(rema$beta)/2, beta1= 0, at.risk.of.PB = dat$at.risk.of.PB[i],
+               lower.tail = FALSE)
+  } )))
+betas <- PublicationBiasInModeratorAnalysis:::betas_PB(exp_given_PB)
+(beta_info <- round(data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                         "tau2" = 0.11, "PP" = .2),3))
+
+# In Figure 6, the observed moderator effect of -.293 could only be approached
+# when assuming extreme publication bias (PP=0) and considerable heterogeneity (tau2=.11).
+# In this case, however, the intercept is overestimated (observed b0 = .194).
+exp_given_PB <- do.call(rbind, PublicationBiasInModeratorAnalysis:::flattenlist(
+  lapply(1:nrow(dat), function(i)  {
+    exp_val_MA(PP=0, Zcv=Zcv, vg= dat$vi[i], vgvec=dat$vi, tau2=0.11, x1=mods[i],
+               x1vec = mods, beta0= as.numeric(rema$beta)/2, beta1= 0, at.risk.of.PB = dat$at.risk.of.PB[i],
+               lower.tail = FALSE)
+  } )))
+betas <- PublicationBiasInModeratorAnalysis:::betas_PB(exp_given_PB)
+(beta_info <- round(data.frame("beta0PB" = betas[1], "beta1PB" = betas[2],
+                               "tau2" = 0.11, "PP" = 0),3))
+
+# Figure 7
 Fig7 <- PBanalysis_plots(dat = dat, mods = mods, mem = mema,Zcv = Zcv, beta0 =as.numeric(rema$beta),
                          heterogeneity = "tau2res", mod.title = "Moderator: Pre-registered (no=0, yes=1)")
 svglite::svglite(filename = "Figure7.svg",  width = 850*0.3 / 25.4,
